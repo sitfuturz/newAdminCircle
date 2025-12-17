@@ -156,9 +156,10 @@
 // }
 
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { DashboardService, DashboardCounts, DashboardResponse, ChapterService, Chapter  } from '../../../services/auth.service';
 // Import ChapterService
 import { swalHelper } from '../../../core/constants/swal-helper';
@@ -170,9 +171,11 @@ import { swalHelper } from '../../../core/constants/swal-helper';
   standalone: true,
   imports: [CommonModule, FormsModule],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit {
+  @ViewChild('chapterSelect', { static: false }) chapterSelect!: ElementRef<HTMLSelectElement>;
+  
   loading = false;
-  showAdvancedFilters = false;
+  showAdvancedFilters = true;
 
   counts: DashboardCounts = {
     users: 0,
@@ -195,7 +198,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private dashboardService: DashboardService,
-    private chapterService: ChapterService // Replace CityService with ChapterService
+    private chapterService: ChapterService, // Replace CityService with ChapterService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -203,12 +207,35 @@ export class DashboardComponent implements OnInit {
     this.loadDashboardCounts();
   }
 
+  ngAfterViewInit(): void {
+    // Auto-focus the chapter dropdown after view initializes
+    setTimeout(() => {
+      this.focusChapterDropdown();
+    }, 500); // Small delay to ensure the view is fully rendered and filters are expanded
+  }
+
   async loadChapters(): Promise<void> {
     try {
       this.chapters = await this.chapterService.getAllChaptersForDropdown();
+      // Focus the dropdown after chapters are loaded
+      setTimeout(() => {
+        this.focusChapterDropdown();
+      }, 100);
     } catch (error) {
       console.error('Failed to load chapters:', error);
       swalHelper.showToast('Failed to load chapters', 'error');
+    }
+  }
+
+  focusChapterDropdown(): void {
+    if (this.chapterSelect && this.chapterSelect.nativeElement) {
+      this.chapterSelect.nativeElement.focus();
+      // Try to open the dropdown programmatically (works in some browsers)
+      try {
+        this.chapterSelect.nativeElement.click();
+      } catch (e) {
+        // Some browsers don't allow programmatic opening of select dropdowns
+      }
     }
   }
 
@@ -269,5 +296,34 @@ export class DashboardComponent implements OnInit {
   clearToDate(): void {
     this.toDate = '';
     this.loadDashboardCounts();
+  }
+
+  // Navigation methods
+  navigateToUsers(): void {
+    this.router.navigate(['/users']);
+  }
+
+  navigateToReferralReport(): void {
+    this.router.navigate(['/referralReport']);
+  }
+
+  navigateToTyfcb(): void {
+    this.router.navigate(['/tyfcb']);
+  }
+
+  navigateToOneTooneReport(): void {
+    this.router.navigate(['/oneTooneReport']);
+  }
+
+  navigateToTestimonialReport(): void {
+    this.router.navigate(['/testimonialReport']);
+  }
+
+  navigateToBanners(): void {
+    this.router.navigate(['/banners']);
+  }
+
+  navigateToEvents(): void {
+    this.router.navigate(['/events']);
   }
 }

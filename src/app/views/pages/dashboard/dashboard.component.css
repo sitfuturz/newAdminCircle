@@ -161,6 +161,10 @@ h2, h3, h4, h5, h6 {
   min-height: 140px;
 }
 
+.clickable-card {
+  cursor: pointer;
+}
+
 .metric-card::before {
   content: '';
   position: absolute;

@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
-  baseURL: 'http://localhost:3100',
+  baseURL: 'https://thecircle.co.in',
   route: 'admin',
-  imageUrl:'http://localhost:3100/',
+  imageUrl:'https://thecircle.co.in/',
   
   };
 
