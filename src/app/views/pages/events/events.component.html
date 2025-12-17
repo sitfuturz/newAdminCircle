@@ -151,7 +151,7 @@
     <!-- Event Modal (Add/Edit) -->
     <div class="modal fade" id="eventModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
         role="dialog" aria-labelledby="eventModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
                 <div class="modal-header bg-gradient-primary text-white">
                     <h5 class="modal-title" id="eventModalTitle">
@@ -162,172 +162,185 @@
                 </div>
                 <div class="modal-body p-4">
                     <form [formGroup]="eventForm" (ngSubmit)="saveEvent()">
-                        <div class="mb-3">
-                            <label for="eventName" class="form-label required">Event Name</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
-                                <input type="text" class="form-control" id="eventName" placeholder="Enter event name"
-                                    formControlName="name"
-                                    [ngClass]="{'is-invalid': eventForm.get('name')?.invalid && (eventForm.get('name')?.touched || eventForm.get('name')?.dirty)}">
-                                <div *ngIf="eventForm.get('name')?.invalid && (eventForm.get('name')?.touched || eventForm.get('name')?.dirty)"
-                                    class="invalid-feedback">
-                                    <div *ngIf="eventForm.get('name')?.errors?.['required']">Event name is required
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="eventName" class="form-label required">Event Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                        <input type="text" class="form-control" id="eventName" placeholder="Enter event name"
+                                            formControlName="name"
+                                            [ngClass]="{'is-invalid': eventForm.get('name')?.invalid && (eventForm.get('name')?.touched || eventForm.get('name')?.dirty)}">
+                                        <div *ngIf="eventForm.get('name')?.invalid && (eventForm.get('name')?.touched || eventForm.get('name')?.dirty)"
+                                            class="invalid-feedback">
+                                            <div *ngIf="eventForm.get('name')?.errors?.['required']">Event name is required
+                                            </div>
+                                            <div *ngIf="eventForm.get('name')?.errors?.['minlength']">Event name must be at
+                                                least 3 characters</div>
+                                        </div>
                                     </div>
-                                    <div *ngIf="eventForm.get('name')?.errors?.['minlength']">Event name must be at
-                                        least 3 characters</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="eventDate" class="form-label required">Event Date</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                        <input type="date" class="form-control" id="eventDate" formControlName="date"
+                                            [ngClass]="{'is-invalid': eventForm.get('date')?.invalid && (eventForm.get('date')?.touched || eventForm.get('date')?.dirty)}">
+                                        <div *ngIf="eventForm.get('date')?.invalid && (eventForm.get('date')?.touched || eventForm.get('date')?.dirty)"
+                                            class="invalid-feedback">
+                                            <div *ngIf="eventForm.get('date')?.errors?.['required']">Event date is required
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <label for="startTime" class="form-label">Start Time</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                                            <input type="time" class="form-control" id="startTime" formControlName="startTime">
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label for="endTime" class="form-label">End Time</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                                            <input type="time" class="form-control" id="endTime" formControlName="endTime">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="eventMode" class="form-label">Mode</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-display"></i></span>
+                                        <select class="form-select" id="eventMode" formControlName="mode">
+                                            <option value="online">Online</option>
+                                            <option value="offline">Offline</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="eventLocation" class="form-label required">Location/Link</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                        <input type="text" class="form-control" id="eventLocation"
+                                            placeholder="Enter location or link" formControlName="location"
+                                            [ngClass]="{'is-invalid': eventForm.get('location')?.invalid && (eventForm.get('location')?.touched || eventForm.get('location')?.dirty)}">
+                                        <div *ngIf="eventForm.get('location')?.invalid && (eventForm.get('location')?.touched || eventForm.get('location')?.dirty)"
+                                            class="invalid-feedback">
+                                            <div *ngIf="eventForm.get('location')?.errors?.['required']">Location is required
+                                            </div>
+                                            <div *ngIf="eventForm.get('location')?.errors?.['minlength']">Location must be at
+                                                least 3 characters</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="LocationURL" class="form-label">Location URL</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                        <input type="text" class="form-control" id="LocationURL"
+                                            placeholder="Enter location URL if any" formControlName="mapURL">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="eventChapter" class="form-label required">Chapter</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-bookmark"></i></span>
+                                        <select class="form-select" id="eventChapter" formControlName="chapter_name"
+                                            [ngClass]="{'is-invalid': eventForm.get('chapter_name')?.invalid && (eventForm.get('chapter_name')?.touched || eventForm.get('chapter_name')?.dirty)}">
+                                            <option value="" disabled>Select a chapter</option>
+                                            <option *ngFor="let chapter of chapters" [value]="chapter.name">{{chapter.name}}
+                                            </option>
+                                        </select>
+                                        <div *ngIf="eventForm.get('chapter_name')?.invalid && (eventForm.get('chapter_name')?.touched || eventForm.get('chapter_name')?.dirty)"
+                                            class="invalid-feedback">
+                                            <div *ngIf="eventForm.get('chapter_name')?.errors?.['required']">Chapter is required
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label required">Event Type</label>
+                                    <div class="d-flex">
+                                        <div class="form-check me-4">
+                                            <input class="form-check-input" type="radio" id="typeEvent"
+                                                formControlName="event_or_meeting" value="event">
+                                            <label class="form-check-label" for="typeEvent">Event</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" id="typeMeeting"
+                                                formControlName="event_or_meeting" value="meeting">
+                                            <label class="form-check-label" for="typeMeeting">Meeting</label>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="eventForm.get('event_or_meeting')?.invalid && (eventForm.get('event_or_meeting')?.touched || eventForm.get('event_or_meeting')?.dirty)"
+                                        class="invalid-feedback d-block">
+                                        <div *ngIf="eventForm.get('event_or_meeting')?.errors?.['required']">Event type is
+                                            required</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="eventPaid" formControlName="paid">
+                                    <label class="form-check-label" for="eventPaid">
+                                        {{eventForm.get('paid')?.value ? 'Paid' : 'Free'}} Event
+                                    </label>
+                                </div>
+                                <div class="mb-3" *ngIf="eventForm.get('paid')?.value">
+                                    <label for="eventAmount" class="form-label required">Amount</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
+                                        <input type="text" class="form-control" id="eventAmount" placeholder="Enter amount"
+                                            formControlName="amount" maxlength="7" pattern="[0-9]*" inputmode="numeric"
+                                            (input)="onAmountInput($event)"
+                                            [ngClass]="{'is-invalid': eventForm.get('amount')?.invalid && (eventForm.get('amount')?.touched || eventForm.get('amount')?.dirty)}">
+                                        <div *ngIf="eventForm.get('amount')?.invalid && (eventForm.get('amount')?.touched || eventForm.get('amount')?.dirty)"
+                                            class="invalid-feedback">
+                                            <div *ngIf="eventForm.get('amount')?.errors?.['required']">Amount is required for
+                                                paid events</div>
+                                            <div *ngIf="eventForm.get('amount')?.errors?.['min']">Amount must be greater than 0
+                                            </div>
+                                            <div *ngIf="eventForm.get('amount')?.errors?.['maxlength']">Amount cannot exceed 7 digits
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="eventThumbnail" class="form-label">Event Thumbnail</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-image"></i></span>
+                                        <input type="file" class="form-control" id="eventThumbnail"
+                                            (change)="onThumbnailChange($event)" accept="image/*">
+                                        <label class="input-group-text" for="eventThumbnail">Upload</label>
+                                    </div>
+                                    <div *ngIf="thumbnailPreview" class="mt-2 text-center">
+                                        <img [src]="thumbnailPreview" class="img-thumbnail rounded shadow-sm"
+                                            style="max-height: 150px;">
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="eventDate" class="form-label required">Event Date</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-                                <input type="date" class="form-control" id="eventDate" formControlName="date"
-                                    [ngClass]="{'is-invalid': eventForm.get('date')?.invalid && (eventForm.get('date')?.touched || eventForm.get('date')?.dirty)}">
-                                <div *ngIf="eventForm.get('date')?.invalid && (eventForm.get('date')?.touched || eventForm.get('date')?.dirty)"
-                                    class="invalid-feedback">
-                                    <div *ngIf="eventForm.get('date')?.errors?.['required']">Event date is required
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="startTime" class="form-label">Start Time</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
-                                <input type="time" class="form-control" id="startTime" formControlName="startTime">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="endTime" class="form-label">End Time</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
-                                <input type="time" class="form-control" id="endTime" formControlName="endTime">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="eventMode" class="form-label">Mode</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-display"></i></span>
-                                <select class="form-select" id="eventMode" formControlName="mode">
-                                    <option value="online">Online</option>
-                                    <option value="offline">Offline</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="eventLocation" class="form-label required">Location/Link</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
-                                <input type="text" class="form-control" id="eventLocation"
-                                    placeholder="Enter location or link" formControlName="location"
-                                    [ngClass]="{'is-invalid': eventForm.get('location')?.invalid && (eventForm.get('location')?.touched || eventForm.get('location')?.dirty)}">
-                                <div *ngIf="eventForm.get('location')?.invalid && (eventForm.get('location')?.touched || eventForm.get('location')?.dirty)"
-                                    class="invalid-feedback">
-                                    <div *ngIf="eventForm.get('location')?.errors?.['required']">Location is required
-                                    </div>
-                                    <div *ngIf="eventForm.get('location')?.errors?.['minlength']">Location must be at
-                                        least 3 characters</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="LocationURL" class="form-label">Location URL</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
-                                <input type="text" class="form-control" id="LocationURL"
-                                    placeholder="Enter location URL if any" formControlName="mapURL">
-                            </div>
-                        </div>
-
+                        <!-- Full Width Fields -->
                         <div class="mb-3">
                             <label for="details" class="form-label">Details</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-info-circle"></i></span>
                                 <textarea class="form-control" id="details" rows="4"
                                     placeholder="Enter event description" formControlName="details"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="eventChapter" class="form-label required">Chapter</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-bookmark"></i></span>
-                                <select class="form-select" id="eventChapter" formControlName="chapter_name"
-                                    [ngClass]="{'is-invalid': eventForm.get('chapter_name')?.invalid && (eventForm.get('chapter_name')?.touched || eventForm.get('chapter_name')?.dirty)}">
-                                    <option value="" disabled>Select a chapter</option>
-                                    <option *ngFor="let chapter of chapters" [value]="chapter.name">{{chapter.name}}
-                                    </option>
-                                </select>
-                                <div *ngIf="eventForm.get('chapter_name')?.invalid && (eventForm.get('chapter_name')?.touched || eventForm.get('chapter_name')?.dirty)"
-                                    class="invalid-feedback">
-                                    <div *ngIf="eventForm.get('chapter_name')?.errors?.['required']">Chapter is required
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label required">Event Type</label>
-                            <div class="d-flex">
-                                <div class="form-check me-4">
-                                    <input class="form-check-input" type="radio" id="typeEvent"
-                                        formControlName="event_or_meeting" value="event">
-                                    <label class="form-check-label" for="typeEvent">Event</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="typeMeeting"
-                                        formControlName="event_or_meeting" value="meeting">
-                                    <label class="form-check-label" for="typeMeeting">Meeting</label>
-                                </div>
-                            </div>
-                            <div *ngIf="eventForm.get('event_or_meeting')?.invalid && (eventForm.get('event_or_meeting')?.touched || eventForm.get('event_or_meeting')?.dirty)"
-                                class="invalid-feedback d-block">
-                                <div *ngIf="eventForm.get('event_or_meeting')?.errors?.['required']">Event type is
-                                    required</div>
-                            </div>
-                        </div>
-
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="eventPaid" formControlName="paid">
-                            <label class="form-check-label" for="eventPaid">
-                                {{eventForm.get('paid')?.value ? 'Paid' : 'Free'}} Event
-                            </label>
-                        </div>
-                        <div class="mb-3" *ngIf="eventForm.get('paid')?.value">
-                            <label for="eventAmount" class="form-label required">Amount</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
-                                <input type="number" class="form-control" id="eventAmount" placeholder="Enter amount"
-                                    formControlName="amount"
-                                    [ngClass]="{'is-invalid': eventForm.get('amount')?.invalid && (eventForm.get('amount')?.touched || eventForm.get('amount')?.dirty)}">
-                                <div *ngIf="eventForm.get('amount')?.invalid && (eventForm.get('amount')?.touched || eventForm.get('amount')?.dirty)"
-                                    class="invalid-feedback">
-                                    <div *ngIf="eventForm.get('amount')?.errors?.['required']">Amount is required for
-                                        paid events</div>
-                                    <div *ngIf="eventForm.get('amount')?.errors?.['min']">Amount must be greater than 0
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="eventThumbnail" class="form-label">Event Thumbnail</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-image"></i></span>
-                                <input type="file" class="form-control" id="eventThumbnail"
-                                    (change)="onThumbnailChange($event)" accept="image/*">
-                                <label class="input-group-text" for="eventThumbnail">Upload</label>
-                            </div>
-                            <div *ngIf="thumbnailPreview" class="mt-2 text-center">
-                                <img [src]="thumbnailPreview" class="img-thumbnail rounded shadow-sm"
-                                    style="max-height: 150px;">
                             </div>
                         </div>
 

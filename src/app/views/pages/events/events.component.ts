@@ -64,7 +64,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
             name: ['', [Validators.required, Validators.minLength(3)]],
             date: ['', Validators.required],
             startTime: [''],
-            amount: [0],
+            amount: [0, [Validators.min(1)]],
             endTime: [''],
             mode: ['online'],
             event_or_meeting: ['', Validators.required],
@@ -306,6 +306,31 @@ export class EventsComponent implements OnInit, AfterViewInit {
         const files = event.target.files;
         if (files && files.length > 0) {
             this.selectedVideos = Array.from(files);
+        }
+    }
+
+    onAmountInput(event: any): void {
+        // Remove any non-digit characters
+        let value = event.target.value.replace(/\D/g, '');
+        
+        // Limit to 7 digits
+        if (value.length > 7) {
+            value = value.substring(0, 7);
+        }
+        
+        // Update the form value
+        const numValue = value === '' ? 0 : parseInt(value, 10);
+        this.eventForm.patchValue({ amount: numValue });
+        
+        // Update the input field value
+        event.target.value = value;
+        
+        // Clear error if valid
+        if (value.length > 0 && numValue > 0) {
+            const amountControl = this.eventForm.get('amount');
+            if (amountControl) {
+                amountControl.setErrors(null);
+            }
         }
     }
 
