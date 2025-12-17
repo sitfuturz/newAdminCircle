@@ -66,10 +66,14 @@
               </div>
             </td>
             <td class="py-3">
-              <div class="fw-bold text-dark">{{badge.name || 'Untitled'}}</div>
+              <div class="fw-bold text-dark text-truncate" style="max-width: 200px;" [title]="badge.name || 'Untitled'">
+                {{badge.name || 'Untitled'}}
+              </div>
             </td>
             <td class="py-3">
-              <span class="text-muted">{{badge.description || 'N/A'}}</span>
+              <span class="text-muted text-truncate d-inline-block" style="max-width: 300px;" [title]="badge.description || 'N/A'">
+                {{badge.description || 'N/A'}}
+              </span>
             </td>
             <td class="py-3">
               <span class="badge rounded-pill" 

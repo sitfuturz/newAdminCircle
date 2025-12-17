@@ -226,6 +226,22 @@ export class BannersComponent implements OnInit, AfterViewInit {
     this.imagePreview = null;
     this.formSubmitted = false;
   }
+
+  onContactInput(event: any): void {
+    // Remove any non-digit characters
+    let value = event.target.value.replace(/\D/g, '');
+    
+    // Limit to 10 digits
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+    
+    // Update the form value
+    this.newBanner.contact = value;
+    
+    // Update the input field value
+    event.target.value = value;
+  }
   
   showModal(): void {
     // Force detect changes

@@ -286,7 +286,7 @@
             <div class="col-md-6 mb-3">
               <label for="bannerContact" class="form-label">Contact</label>
               <input type="text" class="form-control" id="bannerContact" placeholder="Enter contact details" 
-                    [(ngModel)]="newBanner.contact" name="bannerContact">
+                    [(ngModel)]="newBanner.contact" name="bannerContact" maxlength="10" pattern="[0-9]*" inputmode="numeric" (input)="onContactInput($event)">
             </div>
             
             <div class="col-md-6 mb-3">
