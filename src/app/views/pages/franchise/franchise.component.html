@@ -1,0 +1,275 @@
+<div class="container-fluid">
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+    <div class="card-header bg-gradient-primary d-flex justify-content-between align-items-center py-3">
+      <h4 class="mb-0 fw-bold text-white">
+        <i class="fa fa-building me-2"></i>Franchise Management
+      </h4>
+      <button class="btn btn-light rounded-pill px-4" (click)="openCreateFranchiseModal()" [disabled]="loading">
+        <i class="fa fa-plus-circle me-2"></i>Add New Franchise
+      </button>
+    </div>
+    
+    <div class="card-body p-0">
+      <!-- Search and Filters -->
+      <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+        <div class="d-flex w-100 align-items-center">
+          <div class="flex-grow-1 me-2">
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search franchises..." 
+              [(ngModel)]="searchQuery"
+              (input)="onSearchChange($event)"
+              [disabled]="loading">
+          </div>
+          <div>
+            <ng-select [items]="[10,25,50,100]" (change)="onChange()" [(ngModel)]="payload.limit" placeholder="Items per page"></ng-select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="loading" class="text-center my-5 py-5">
+        <div class="spinner-grow text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Franchise Table -->
+      <div *ngIf="!loading" class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="ps-4 py-3">No.</th>
+              <th class="py-3">Franchise Name</th>
+              <th class="py-3">Code</th>
+              <th class="py-3">State</th>
+              <th class="py-3">City</th>
+              <th class="py-3">Franchisee</th>
+              <th class="py-3">Amount Paid</th>
+              <th class="py-3">Status</th>
+              <th class="py-3">Created Date</th>
+              <th class="text-end pe-4 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let franchise of franchises.data.docs | paginate: {itemsPerPage: payload.limit, currentPage: payload.page, totalItems: franchises.data.totalDocs}; let i=index" class="border-bottom">
+              <td class="ps-4 py-3">
+                <span class="fw-bold text-primary">{{ (payload.page - 1) * payload.limit + i + 1 }}</span>
+              </td>
+              <td class="py-3">
+                <div class="d-flex align-items-center">
+                  <!-- <div class="bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm border-2 border-white"
+                       style="width: 40px; height: 40px; color: white;">
+                    {{ franchise.name ? franchise.name.charAt(0).toUpperCase() : 'F' }}
+                  </div> -->
+                  <div>
+                    <div class="fw-bold text-dark">{{ franchise.name }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="py-3"><span class="badge bg-info rounded-pill">{{ franchise.code }}</span></td>
+              <td class="py-3">{{ getStateName(franchise.state) }}</td>
+              <td class="py-3">{{ getCityName(franchise.city) }}</td>
+              <td class="py-3">
+                <div>
+                  <div class="fw-bold">{{ franchise.franchisee.name }}</div>
+                  <small class="text-muted">{{ franchise.franchisee.email }}</small>
+                </div>
+              </td>
+              <td class="py-3 text-success fw-bold">{{ formatCurrency(franchise.investmentAmount) }}</td>
+              <td class="py-3">
+                <span class="badge rounded-pill" 
+                      [ngClass]="getStatusBadgeClass(franchise.status)"
+                      style="cursor: pointer;"
+                      (click)="!loading && toggleFranchiseStatus(franchise)"
+                      [style.opacity]="loading ? '0.6' : '1'">
+                  {{ franchise.status | titlecase }}
+                </span>
+              </td>
+              <td class="py-3">{{ formatDate(franchise.createdAt) }}</td>
+              <td class="text-end pe-4 py-3">
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-primary rounded-pill dropdown-toggle" 
+                          type="button" 
+                          data-bs-toggle="dropdown" 
+                          aria-expanded="false">
+                    Actions
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                    <li>
+                      <a class="dropdown-item" 
+                         (click)="openEditFranchiseModal(franchise)"
+                         style="cursor: pointer;"
+                         [class.disabled]="loading">
+                        <i class="fa fa-edit me-2 text-primary"></i> Edit
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <!-- <li> -->
+                      <!-- <a class="dropdown-item text-danger" 
+                         (click)="deleteFranchise(franchise)"
+                         style="cursor: pointer;">
+                        <i class="fa fa-trash me-2"></i> Delete
+                      </a> -->
+                    <!-- </li> -->
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div *ngIf="franchises.data.docs.length === 0" class="text-center my-5 py-4 px-4">
+          <div class="empty-state">
+            <i class="fa fa-building fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No franchises found</h5>
+            <p class="text-muted">Start by adding your first franchise.</p>
+            <button class="btn btn-primary rounded-pill mt-3" (click)="openCreateFranchiseModal()" [disabled]="loading">
+              <i class="fa fa-plus-circle me-2"></i>Add Franchise
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex justify-content-end p-3">
+        <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Franchise Modal -->
+<div class="modal fade" id="franchiseModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="franchiseModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+      <div class="modal-header bg-gradient-primary text-white">
+        <h5 class="modal-title" id="franchiseModalLabel">
+          <i class="bi bi-building me-2"></i>{{ editMode ? 'Edit Franchise' : 'Add New Franchise' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <form [formGroup]="franchiseForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body p-4">
+          <div class="row">
+            <!-- Franchise Name -->
+            <div class="col-md-6 mb-3">
+              <label for="franchiseName" class="form-label">Franchise Name *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="franchiseName"
+                formControlName="name"
+                placeholder="Enter franchise name"
+                [class.is-invalid]="franchiseForm.get('name')?.invalid && franchiseForm.get('name')?.touched">
+              <div *ngIf="franchiseForm.get('name')?.invalid && franchiseForm.get('name')?.touched" class="invalid-feedback">
+                <div *ngIf="franchiseForm.get('name')?.errors?.['required']">Franchise name is required</div>
+                <div *ngIf="franchiseForm.get('name')?.errors?.['minlength']">Name must be at least 2 characters</div>
+              </div>
+            </div>
+
+            <!-- State -->
+            <div class="col-md-6 mb-3">
+              <label for="state" class="form-label">State *</label>
+              <select 
+                class="form-select" 
+                id="state"
+                formControlName="state"
+                (change)="onStateChange()"
+                [class.is-invalid]="franchiseForm.get('state')?.invalid && franchiseForm.get('state')?.touched"
+                [disabled]="statesLoading">
+                <option value="" disabled>Select State</option>
+                <option *ngFor="let state of states" [value]="state._id">{{ state.name }}</option>
+              </select>
+              <div *ngIf="statesLoading" class="form-text">
+                <i class="fa fa-spinner fa-spin me-1"></i>Loading states...
+              </div>
+              <div *ngIf="franchiseForm.get('state')?.invalid && franchiseForm.get('state')?.touched" class="invalid-feedback">
+                State is required
+              </div>
+            </div>
+
+            <!-- City -->
+            <div class="col-md-6 mb-3">
+              <label for="city" class="form-label">City *</label>
+              <select 
+                class="form-select" 
+                id="city"
+                formControlName="city"
+                [class.is-invalid]="franchiseForm.get('city')?.invalid && franchiseForm.get('city')?.touched"
+                [disabled]="citiesLoading || !citiesLoaded">
+                <option value="" disabled>Select City</option>
+                <option *ngFor="let city of cities" [value]="city._id">{{ city.name }}</option>
+              </select>
+              <div *ngIf="citiesLoading" class="form-text">
+                <i class="fa fa-spinner fa-spin me-1"></i>Loading cities...
+              </div>
+              <div *ngIf="franchiseForm.get('city')?.invalid && franchiseForm.get('city')?.touched" class="invalid-feedback">
+                City is required
+              </div>
+            </div>
+
+            <!-- Franchisee Email -->
+            <div class="col-md-6 mb-3">
+              <label for="franchiseeEmail" class="form-label">Franchisee Email *</label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="franchiseeEmail"
+                formControlName="franchiseeEmail"
+                placeholder="Enter franchisee email"
+                [class.is-invalid]="franchiseForm.get('franchiseeEmail')?.invalid && franchiseForm.get('franchiseeEmail')?.touched">
+              <div *ngIf="franchiseForm.get('franchiseeEmail')?.invalid && franchiseForm.get('franchiseeEmail')?.touched" class="invalid-feedback">
+                <div *ngIf="franchiseForm.get('franchiseeEmail')?.errors?.['required']">Email is required</div>
+                <div *ngIf="franchiseForm.get('franchiseeEmail')?.errors?.['email']">Please enter a valid email</div>
+              </div>
+            </div>
+
+            <!-- Investment Amount -->
+            <div class="col-md-6 mb-3">
+              <label for="investmentAmount" class="form-label">Amount Paid *</label>
+              <div class="input-group">
+                <span class="input-group-text">₹</span>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  id="investmentAmount"
+                  formControlName="investmentAmount"
+                  placeholder="Enter amount paid"
+                  min="0"
+                  step="1000"
+                  [class.is-invalid]="franchiseForm.get('investmentAmount')?.invalid && franchiseForm.get('investmentAmount')?.touched">
+              </div>
+              <div *ngIf="franchiseForm.get('investmentAmount')?.invalid && franchiseForm.get('investmentAmount')?.touched" class="invalid-feedback">
+                <div *ngIf="franchiseForm.get('investmentAmount')?.errors?.['required']">Amount is required</div>
+                <div *ngIf="franchiseForm.get('investmentAmount')?.errors?.['min']">Amount must be greater than 0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Status -->
+          <div *ngIf="franchiseForm.invalid && franchiseForm.touched" class="alert alert-warning">
+            <i class="fa fa-exclamation-triangle me-2"></i>
+            Please fill in all required fields correctly.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
+            <i class="fa fa-times-circle me-1"></i> Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary rounded-pill"
+            [disabled]="franchiseForm.invalid || loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            <i class="fa fa-save me-1"></i> {{ editMode ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
