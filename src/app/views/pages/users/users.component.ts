@@ -739,6 +739,24 @@ export class UsersComponent implements OnInit, AfterViewInit {
     }
   }
 
+  onMobileNumberInput(event: any): void {
+    // Remove any non-digit characters
+    let value = event.target.value.replace(/\D/g, '');
+    
+    // Limit to 10 digits
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+    
+    // Update the form value
+    this.editForm.mobile_number = value;
+    
+    // Clear error if valid
+    if (value.length === 10) {
+      this.editError.mobile_number = '';
+    }
+  }
+
   validateEditForm(): boolean {
     let isValid = true;
     this.editError = { name: '', mobile_number: '', email: '', role: '' };

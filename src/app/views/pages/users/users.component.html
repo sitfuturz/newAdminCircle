@@ -679,7 +679,7 @@
           </div>
           <div class="mb-3">
             <label for="editMobile" class="form-label">Mobile Number <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="editMobile" [(ngModel)]="editForm.mobile_number" name="mobile_number" placeholder="Enter mobile number" required>
+            <input type="text" class="form-control" id="editMobile" [(ngModel)]="editForm.mobile_number" name="mobile_number" placeholder="Enter mobile number" maxlength="10" pattern="[0-9]*" inputmode="numeric" (input)="onMobileNumberInput($event)" required>
             <div *ngIf="editError.mobile_number" class="text-danger small mt-1">{{editError.mobile_number}}</div>
           </div>
           <div class="mb-3">
