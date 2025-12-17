@@ -1,11 +1,13 @@
 import { AppWorker } from './../../../core/workers/app.worker';
 import { Component, HostListener, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { SideBarService } from './side-bar.service';
 import { CommonModule } from '@angular/common';
 import { AppStorage } from 'src/app/core/utilities/app-storage';
 import { swalHelper } from 'src/app/core/constants/swal-helper';
 import { AuthService } from 'src/app/services/auth.service';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-side-bar',
@@ -27,6 +29,26 @@ export class SideBarComponent implements OnInit, OnDestroy, AfterViewInit {
   isSidebarOpen = false;
   isMobile = false;
   activeSubMenuIndex: number | null = null;
+  private routerSubscription?: Subscription;
+  
+  // Report routes that should auto-expand Reports Sections
+  private reportRoutes = [
+    'referralReport',
+    'testimonialReport',
+    'oneTooneReport',
+    'tyfcb',
+    'VisitorsReport',
+    'askManagement',
+    'pointHistory',
+    'attendanceRecord'
+  ];
+  
+  // Content Management routes that should auto-expand Content Management
+  private contentManagementRoutes = [
+    'banners',
+    'badges',
+    'badgeManagement'
+  ];
 
   // Icon mapping from Feather to Font Awesome
   private iconMap: { [key: string]: string } = {
@@ -74,6 +96,16 @@ export class SideBarComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit() {
     this.checkScreenSize();
     console.log('Sidebar initialized - isMobile:', this.isMobile, 'isSidebarOpen:', this.isSidebarOpen);
+    
+    // Check initial route and auto-expand Reports Sections if needed
+    this.checkAndExpandReportsSection();
+    
+    // Subscribe to router events to auto-expand Reports Sections on navigation
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.checkAndExpandReportsSection();
+      });
   }
 
   ngAfterViewInit() {
@@ -85,7 +117,10 @@ export class SideBarComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    // Clean up any listeners if needed
+    // Clean up router subscription
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   @HostListener('window:resize', ['$event'])
@@ -164,6 +199,85 @@ export class SideBarComponent implements OnInit, OnDestroy, AfterViewInit {
   // Check if any submenu item is active
   isParentMenuActive(submenu: any[]): boolean {
     return submenu.some(item => this.router.url.includes(item.link));
+  }
+
+  // Check if current route is a report route and auto-expand Reports Sections
+  // Also check for Content Management routes
+  checkAndExpandReportsSection(): void {
+    const currentUrl = this.router.url;
+    // Remove query params and hash for cleaner matching
+    const urlPath = currentUrl.split('?')[0].split('#')[0];
+    
+    // Check for report routes
+    const isReportRoute = this.reportRoutes.some(route => {
+      // Check for route in URL path (handles both /route and #/route formats)
+      return urlPath.includes(`/${route}`) || 
+             urlPath.includes(`#/${route}`) ||
+             urlPath.endsWith(`/${route}`) ||
+             urlPath === `/${route}`;
+    });
+    
+    // Check for content management routes
+    const isContentManagementRoute = this.contentManagementRoutes.some(route => {
+      return urlPath.includes(`/${route}`) || 
+             urlPath.includes(`#/${route}`) ||
+             urlPath.endsWith(`/${route}`) ||
+             urlPath === `/${route}`;
+    });
+    
+    if (isReportRoute) {
+      // Find the index of "Reports Sections" menu item
+      const reportsSectionIndex = this.findReportsSectionIndex();
+      if (reportsSectionIndex !== -1 && this.activeSubMenuIndex !== reportsSectionIndex) {
+        this.activeSubMenuIndex = reportsSectionIndex;
+        console.log('Auto-expanded Reports Sections for route:', currentUrl);
+      }
+    } else if (isContentManagementRoute) {
+      // Find the index of "Content Management" menu item
+      const contentManagementIndex = this.findContentManagementIndex();
+      if (contentManagementIndex !== -1 && this.activeSubMenuIndex !== contentManagementIndex) {
+        this.activeSubMenuIndex = contentManagementIndex;
+        console.log('Auto-expanded Content Management for route:', currentUrl);
+      }
+    }
+  }
+  
+  // Find the index of "Reports Sections" menu item within the module's menus array
+  findReportsSectionIndex(): number {
+    if (!this.sideBarService.list || this.sideBarService.list.length === 0) {
+      return -1;
+    }
+    
+    // Since the template uses index within module.menus, we need to find it there
+    // The template structure: *ngFor="let module of sideBarService.list" then *ngFor="let item of module.menus; let i = index"
+    for (const module of this.sideBarService.list) {
+      if (module.menus) {
+        for (let i = 0; i < module.menus.length; i++) {
+          if (module.menus[i].title === 'Reports Sections' && module.menus[i].hasSubmenu) {
+            return i; // Return the index within the module's menus array
+          }
+        }
+      }
+    }
+    return -1;
+  }
+  
+  // Find the index of "Content Management" menu item within the module's menus array
+  findContentManagementIndex(): number {
+    if (!this.sideBarService.list || this.sideBarService.list.length === 0) {
+      return -1;
+    }
+    
+    for (const module of this.sideBarService.list) {
+      if (module.menus) {
+        for (let i = 0; i < module.menus.length; i++) {
+          if (module.menus[i].title === 'Content Management' && module.menus[i].hasSubmenu) {
+            return i; // Return the index within the module's menus array
+          }
+        }
+      }
+    }
+    return -1;
   }
 
   logout = async () => {

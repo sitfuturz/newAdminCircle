@@ -298,32 +298,48 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.loadDashboardCounts();
   }
 
-  // Navigation methods
+  // Navigation methods - Auto-open dropdown before navigation
   navigateToUsers(): void {
-    this.router.navigate(['/users']);
+    this.openDropdownAndNavigate(['/users']);
   }
 
   navigateToReferralReport(): void {
-    this.router.navigate(['/referralReport']);
+    this.openDropdownAndNavigate(['/referralReport']);
   }
 
   navigateToTyfcb(): void {
-    this.router.navigate(['/tyfcb']);
+    this.openDropdownAndNavigate(['/tyfcb']);
   }
 
   navigateToOneTooneReport(): void {
-    this.router.navigate(['/oneTooneReport']);
+    this.openDropdownAndNavigate(['/oneTooneReport']);
   }
 
   navigateToTestimonialReport(): void {
-    this.router.navigate(['/testimonialReport']);
+    this.openDropdownAndNavigate(['/testimonialReport']);
   }
 
   navigateToBanners(): void {
-    this.router.navigate(['/banners']);
+    this.openDropdownAndNavigate(['/banners']);
   }
 
   navigateToEvents(): void {
-    this.router.navigate(['/events']);
+    this.openDropdownAndNavigate(['/events']);
+  }
+
+  // Helper method to open dropdown and navigate
+  openDropdownAndNavigate(route: string[]): void {
+    // Ensure advanced filters are visible
+    this.showAdvancedFilters = true;
+    
+    // Focus and open the chapter dropdown
+    setTimeout(() => {
+      this.focusChapterDropdown();
+      
+      // Navigate after a small delay to show the dropdown opening
+      setTimeout(() => {
+        this.router.navigate(route);
+      }, 300);
+    }, 50);
   }
 }
