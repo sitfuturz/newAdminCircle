@@ -54,21 +54,25 @@
               *ngFor="let subCategory of subCategories.docs | paginate: { itemsPerPage: payload.limit, currentPage: payload.page, totalItems: subCategories.totalDocs }; let i = index"
               class="border-bottom"
             >
-              <td class="ps-4 py-3">
+              <td class="ps-4 py-3" style="max-width: 300px;">
                 <div class="d-flex align-items-center">
                   <div
-                    class="bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm border-2 border-white"
+                    class="bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm border-2 border-white flex-shrink-0"
                     style="width: 40px; height: 40px; color: white;"
                   >
                     {{ subCategory.name ? subCategory.name.charAt(0).toUpperCase() : 'S' }}
                   </div>
-                  <div>
-                    <div class="fw-bold text-dark">{{ subCategory.name }}</div>
-                    <small class="text-muted d-block">ID: {{ subCategory._id ? subCategory._id.substring(0, 8) : 'N/A' }}</small>
+                  <div class="flex-grow-1" style="min-width: 0; overflow: hidden;">
+                    <div class="fw-bold text-dark text-truncate" [title]="subCategory.name" style="max-width: 100%;">{{ subCategory.name }}</div>
+                    <small class="text-muted d-block text-truncate">ID: {{ subCategory._id ? subCategory._id.substring(0, 8) : 'N/A' }}</small>
                   </div>
                 </div>
               </td>
-              <td class="py-3">{{ subCategory.category_name || 'Unknown' }}</td>
+              <td class="py-3" style="max-width: 200px;">
+                <div class="text-truncate" [title]="subCategory.category_name || 'Unknown'" style="max-width: 100%;">
+                  {{ subCategory.category_name || 'Unknown' }}
+                </div>
+              </td>
               <td class="py-3">
                 <span
                   class="badge rounded-pill"
