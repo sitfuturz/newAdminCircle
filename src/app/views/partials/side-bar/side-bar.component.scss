@@ -1278,6 +1278,12 @@ $submenu-border: rgba(255, 235, 238, 0.1);
   }
 }
 
+@media (min-width: 992px) {
+  .mobile-toggle-btn {
+    display: none !important;
+  }
+}
+
 // ============================================
 // REDUCED MOTION SUPPORT
 // ============================================
