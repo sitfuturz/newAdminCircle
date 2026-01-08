@@ -228,7 +228,7 @@
             <th class="py-3">PinCode</th>
             <th class="py-3">Visitor Date</th>
             <th class="py-3">Profession</th>
-            <th class="py-3">Visitor Type</th>
+            <!-- <th class="py-3">Visitor Type</th> -->
             <th class="py-3">Attendance Status</th>
             <th class="py-3">Action</th>
           </tr>
@@ -262,7 +262,7 @@
               <td class="py-3">{{ visitor.pincode || 'N/A' }}</td>
               <td class="py-3">{{ visitor.eventId.date ? formatDate(visitor.eventId.date) : 'N/A' }}</td>
               <td class="py-3">{{ visitor.business_type || 'N/A' }}</td>
-              <td class="py-3">
+              <!-- <td class="py-3">
                 <span 
                   class="badge rounded-pill cursor-pointer" 
                   [ngClass]="visitor.paid ? 'bg-success' : 'bg-secondary'"
@@ -272,7 +272,7 @@
                   <span *ngIf="updatingVisitorId === visitor._id" class="spinner-border spinner-border-sm me-1" role="status"></span>
                   {{ visitor.paid ? 'Paid' : 'Unpaid' }}
                 </span>
-              </td>
+              </td> -->
               <td class="py-3">
                 <span class="badge" [ngClass]="{'bg-success': visitor.attendanceStatus === 'present', 'bg-danger': visitor.attendanceStatus === 'absent', 'bg-secondary': !visitor.attendanceStatus}">
                   {{ visitor.attendanceStatus ? (visitor.attendanceStatus | titlecase) : 'N/A' }}

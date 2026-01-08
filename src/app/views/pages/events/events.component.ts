@@ -605,7 +605,7 @@ export class EventsComponent implements OnInit, AfterViewInit {
         try {
             const qrData = {
                 eventId: event._id,
-               
+                event: {}
             };
 
          
