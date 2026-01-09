@@ -244,6 +244,11 @@ export class SideBarService {
         link:'suggestion',
         icon:'suggestion'
       },
+        {
+        title:'Feed Report',
+        link:'report',
+        icon:'report'
+        }
       ],
       
     },

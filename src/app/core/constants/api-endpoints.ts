@@ -176,7 +176,9 @@ public DELETE_FRANCHISE = `${this.PATH}/deleteFranchise`
   public GET_ALL_SUGGESTIONS: string = `${this.PATH}/getAllSuggestions`;
   public UPDATE_SUGGESTIONS: string = `${this.PATH}/updateSuggestionStatus`;
 
-
+// Report Management
+public GET_ALL_REPORTS: string = `${this.PATH}/getAllReports`;
+public UPDATE_REPORT_STATUS: string = `${this.PATH}/updateReportStatus`;
 
 
 }

@@ -46,7 +46,7 @@ import { AnalyticsComponent } from './views/pages/analytics/analytics.component'
 
 import { ComplainComponent } from './views/pages/complain/complain.component';
 import { SuggestionComponent } from './views/pages/suggestion/suggestion.component';
-
+import { ReportComponent } from './views/pages/report/report.component';
 
 import { LTPointsComponent } from './views/pages/LT Points/ltPoints.component';
 import { FranchiseComponent } from './views/pages/franchise/franchise.component';
@@ -108,7 +108,7 @@ export const routes: Routes = [
       { path: 'franchise', component: FranchiseComponent, canActivate: [RoleGuard], data: { roles: ['admin'] } },
       { path: 'suggestion', component: SuggestionComponent, canActivate: [RoleGuard], data: { roles: ['admin', 'executiveDirector', 'advisoryBoard','LT', 'supportDirector', 'supportAmbassador'] } },
       { path: 'complain', component: ComplainComponent, canActivate: [RoleGuard], data: { roles: ['admin', 'executiveDirector', 'advisoryBoard','LT', 'supportDirector', 'supportAmbassador'] } },
-
+      { path: 'report', component: ReportComponent, canActivate: [RoleGuard], data: { roles: ['admin', 'executiveDirector', 'advisoryBoard','LT', 'supportDirector', 'supportAmbassador'] } },
 {path: 'podcastBooking', component: BookingsComponent, canActivate: [RoleGuard], data: { roles: ['admin', 'executiveDirector', 'advisoryBoard','LT', 'supportDirector', 'supportAmbassador'] } },
 
     ],
