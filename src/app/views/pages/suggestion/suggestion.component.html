@@ -1,0 +1,372 @@
+<div class="container-fluid">
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+    <!-- Header with Analytics -->
+    <div class="card-header bg-gradient-primary py-3">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h4 class="mb-0 fw-bold text-white">
+            <i class="bi bi-lightbulb me-2"></i>Suggestions Management
+          </h4>
+          <p class="mb-0 text-white-50">Monitor and manage all user suggestions</p>
+        </div>
+        <div class="col-md-6">
+          <div class="row text-center">
+            <div class="col-3">
+              <div class="analytics-card">
+                <h5 class="text-white mb-1">{{ analytics.total_suggestions }}</h5>
+                <small class="text-white-50">Total</small>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="analytics-card">
+                <h5 class="text-warning mb-1">{{ analytics.pending_suggestions }}</h5>
+                <small class="text-white-50">Pending</small>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="analytics-card">
+                <h5 class="text-info mb-1">{{ analytics.reviewed_suggestions }}</h5>
+                <small class="text-white-50">Reviewed</small>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="analytics-card">
+                <h5 class="text-success mb-1">{{ analytics.implemented_suggestions }}</h5>
+                <small class="text-white-50">Implemented</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="card-body p-0">
+      <div class="d-flex flex-wrap justify-content-between align-items-center p-3 border-bottom">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2 mb-md-0">
+          <div class="me-2" style="min-width: 180px;">
+            <label for="statusSelect" class="form-label mb-1">Status</label>
+            <select
+              id="statusSelect"
+              class="form-control"
+              [(ngModel)]="filters.status"
+              (change)="onFilterChange()">
+              <option value="">--All Status--</option>
+              <option *ngFor="let status of statusOptions" [value]="status">{{ status | titlecase }}</option>
+            </select>
+          </div>
+          
+          <div class="me-2" style="min-width: 180px;">
+            <label for="categorySelect" class="form-label mb-1">Category</label>
+            <select
+              id="categorySelect"
+              class="form-control"
+              [(ngModel)]="filters.category"
+              (change)="onFilterChange()">
+              <option value="">--All Categories--</option>
+              <option *ngFor="let category of categoryOptions" [value]="category">{{ category | titlecase }}</option>
+            </select>
+          </div>
+
+          <div class="me-2" style="min-width: 200px;">
+            <label for="searchInput" class="form-label mb-1">Search</label>
+            <input
+              id="searchInput"
+              type="text"
+              class="form-control"
+              [(ngModel)]="filters.search"
+              (input)="onFilterChange()"
+              placeholder="Search in title, details">
+          </div>
+          
+          <div class="mt-4">
+            <button class="btn btn-outline-secondary" (click)="resetFilters()">
+              <i class="bi bi-x-circle me-1"></i>Reset
+            </button>
+          </div>
+        </div>
+        
+        <div class="d-flex align-items-center">
+          <div class="ms-2">
+            <select
+              id="limitSelect"
+              class="form-control"
+              [(ngModel)]="filters.limit"
+              (change)="onFilterChange()">
+              <option value="10">10 per page</option>
+              <option value="20">20 per page</option>
+              <option value="50">50 per page</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center my-5 py-5">
+      <div class="spinner-grow text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Suggestions Table -->
+    <div class="table-responsive" *ngIf="!loading && suggestions && suggestions.length > 0">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="py-3">Sr No</th>
+            <th class="py-3">User</th>
+            <th class="py-3">Suggestion</th>
+            <th class="py-3">Category</th>
+            <th class="py-3">Status</th>
+            <th class="py-3">Date</th>
+            <th class="py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let suggestion of suggestions | paginate: {itemsPerPage: filters.limit, currentPage: filters.page, totalItems: totalDocs}; let i=index" class="border-bottom">
+            <td class="py-3">{{ (filters.page - 1) * filters.limit + i + 1 }}</td>
+            
+            <!-- User Info -->
+            <td class="py-3">
+              <div *ngIf="suggestion.userId">
+                <strong>{{ suggestion.userId.name || 'Unknown User' }}</strong>
+                <br>
+                <small class="text-muted">{{ suggestion.userId.email || 'No email' }}</small>
+                <div *ngIf="suggestion.userId.chapter_name" class="mt-1">
+                  <span class="badge bg-light text-dark">{{ suggestion.userId.chapter_name }}</span>
+                </div>
+              </div>
+              <div *ngIf="!suggestion.userId" class="text-muted">
+                No user data
+              </div>
+            </td>
+            
+            <!-- Suggestion Info -->
+            <td class="py-3">
+              <div>
+                <strong>{{ suggestion.title || 'No Title' }}</strong>
+                <br>
+                <small class="text-muted">{{ suggestion.details.substring(0, 100) || 'No details' }}
+                  <span *ngIf="suggestion.details && suggestion.details.length > 100">...</span>
+                </small>
+                <div *ngIf="suggestion.image" class="mt-1">
+                  <small class="text-info">
+                    <i class="bi bi-image me-1"></i>Has Image
+                  </small>
+                </div>
+              </div>
+            </td>
+            
+            <!-- Category -->
+            <td class="py-3">
+              <span class="badge" [ngClass]="getCategoryBadgeClass(suggestion.category)">
+                <i [class]="getCategoryIcon(suggestion.category)" class="me-1"></i>
+                {{ suggestion.category | titlecase }}
+              </span>
+            </td>
+            
+            <!-- Status -->
+            <td class="py-3">
+              <span class="badge" [ngClass]="getStatusBadgeClass(suggestion.status)">
+                {{ suggestion.status | titlecase }}
+              </span>
+            </td>
+            
+            <!-- Date -->
+            <td class="py-3">
+              <div>
+                <small class="text-muted">Created: {{ formatDate(suggestion.createdAt) }}</small>
+                <br>
+                <div *ngIf="suggestion.resolvedAt">
+                  <small class="text-success">Resolved: {{ formatDate(suggestion.resolvedAt) }}</small>
+                </div>
+              </div>
+            </td>
+            
+            <!-- Actions -->
+            <td class="py-3">
+              <button 
+                class="btn btn-sm btn-outline-primary"
+                (click)="openSuggestionModal(suggestion)">
+                <i class="bi bi-eye"></i>
+                View Details
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex justify-content-end p-3">
+        <pagination-controls 
+          (pageChange)="onPageChange($event)"
+          previousLabel="Previous"
+          nextLabel="Next"
+          [directionLinks]="true">
+        </pagination-controls>
+      </div>
+    </div>
+
+    <!-- No Suggestions Found -->
+    <div *ngIf="!loading && (!suggestions || suggestions.length === 0)" class="text-center my-5 py-4 px-4">
+      <div class="empty-state">
+        <i class="bi bi-lightbulb fs-1 text-muted mb-3"></i>
+        <h5>No Suggestions Found</h5>
+        <p class="text-muted">No suggestions match your current filter criteria.</p>
+        <!-- <button class="btn btn-outline-primary rounded-pill mt-3" (click)="resetFilters()">
+          <i class="bi bi-arrow-repeat me-2"></i>Reset Filters
+        </button> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Suggestion Details Modal -->
+<div *ngIf="showSuggestionModal && selectedSuggestion" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-lightbulb me-2"></i>Suggestion Details
+        </h5>
+        <button type="button" class="btn-close" (click)="closeSuggestionModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <!-- Suggestion Info -->
+          <div class="col-md-8">
+            <div class="card border-0 bg-light mb-3">
+              <div class="card-body">
+                <h6 class="card-title">{{ selectedSuggestion.title || 'No Title' }}</h6>
+                <p class="card-text">{{ selectedSuggestion.details || 'No details provided' }}</p>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <strong>Category:</strong> 
+                    <span class="badge ms-2" [ngClass]="getCategoryBadgeClass(selectedSuggestion.category)">
+                      <i [class]="getCategoryIcon(selectedSuggestion.category)" class="me-1"></i>
+                      {{ selectedSuggestion.category | titlecase }}
+                    </span>
+                  </div>
+                  <div class="col-md-6">
+                    <strong>Status:</strong> 
+                    <span class="badge ms-2" [ngClass]="getStatusBadgeClass(selectedSuggestion.status)">
+                      {{ selectedSuggestion.status | titlecase }}
+                    </span>
+                  </div>
+                </div>
+                
+                <div *ngIf="selectedSuggestion.image" class="mt-3">
+                  <strong>Attached Image:</strong><br>
+                  <img [src]="selectedSuggestion.image" alt="Suggestion Image" class="img-fluid mt-2" style="max-height: 200px;">
+                </div>
+                
+                <div *ngIf="selectedSuggestion.adminResponse" class="mt-3">
+                  <div class="alert alert-info">
+                    <strong>Admin Response:</strong><br>
+                    {{ selectedSuggestion.adminResponse }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar Info -->
+          <div class="col-md-4">
+            <!-- User Info -->
+            <div class="card border-0 bg-light mb-3">
+              <div class="card-body">
+                <h6 class="card-title">Suggestion By</h6>
+                <div *ngIf="selectedSuggestion.userId" class="d-flex align-items-center">
+                  <div class="avatar-placeholder bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    {{ selectedSuggestion.userId.name.charAt(0) || 'U' }}
+                  </div>
+                  <div>
+                    <strong>{{ selectedSuggestion.userId.name || 'Unknown User' }}</strong>
+                    <br>
+                    <small class="text-muted">{{ selectedSuggestion.userId.email || 'No email' }}</small>
+                    <div *ngIf="selectedSuggestion.userId.chapter_name">
+                      <span class="badge bg-info mt-1">{{ selectedSuggestion.userId.chapter_name }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="!selectedSuggestion.userId" class="text-muted">
+                  No user data available
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline Info -->
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title">Timeline</h6>
+                <div class="timeline-info">
+                  <div class="mb-2">
+                    <i class="bi bi-calendar-plus text-primary me-2"></i>
+                    <strong>Created:</strong><br>
+                    <small class="ms-4">{{ formatDateTime(selectedSuggestion.createdAt) }}</small>
+                  </div>
+                  <div class="mb-2">
+                    <i class="bi bi-calendar-event text-info me-2"></i>
+                    <strong>Last Updated:</strong><br>
+                    <small class="ms-4">{{ formatDateTime(selectedSuggestion.updatedAt) }}</small>
+                  </div>
+                  <div *ngIf="selectedSuggestion.resolvedAt">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    <strong>Resolved:</strong><br>
+                    <small class="ms-4">{{ formatDateTime(selectedSuggestion.resolvedAt) }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Action Section -->
+        <div class="row mt-4 pt-3 border-top">
+          <div class="col-12">
+            <h6 class="mb-3"><i class="bi bi-pencil-square me-2"></i>Update Status & Response</h6>
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" [(ngModel)]="updateStatusData.status">
+                      <option *ngFor="let status of statusOptions" [value]="status">
+                        {{ status | titlecase }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-8 mb-3">
+                    <label class="form-label">Admin Note / Response</label>
+                    <textarea 
+                      class="form-control" 
+                      rows="3" 
+                      [(ngModel)]="updateStatusData.adminResponse"
+                      placeholder="Enter response for the user..."></textarea>
+                    <div class="form-text text-muted">This note will be visible to the user.</div>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                  <button 
+                    class="btn btn-primary" 
+                    [disabled]="isUpdating"
+                    (click)="updateStatus()">
+                    <span *ngIf="isUpdating" class="spinner-border spinner-border-sm me-1"></span>
+                    Update Status
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeSuggestionModal()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

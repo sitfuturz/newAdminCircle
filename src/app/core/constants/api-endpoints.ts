@@ -168,6 +168,13 @@ public DELETE_FRANCHISE = `${this.PATH}/deleteFranchise`
 
 
 
+  // Complaint Management
+  public GET_ALL_COMPLAINTS: string = `${this.PATH}/getAllComplaints`;
+  public UPDATE_COMPLAINTS: string = `${this.PATH}/updateComplaintStatus`;
+
+  // Suggestion Management
+  public GET_ALL_SUGGESTIONS: string = `${this.PATH}/getAllSuggestions`;
+  public UPDATE_SUGGESTIONS: string = `${this.PATH}/updateSuggestionStatus`;
 
 
 

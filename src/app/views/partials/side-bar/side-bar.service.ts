@@ -234,7 +234,18 @@ export class SideBarService {
         //  title:'Business Data',
         //  link:'LTPoints',
         //  icon:'history'}
+            {
+        title:'Complain',
+        link:'complain',
+        icon:'compalins'
+      },
+        {
+        title:'Suggestion',
+        link:'suggestion',
+        icon:'suggestion'
+      },
       ],
+      
     },
   ];
 
