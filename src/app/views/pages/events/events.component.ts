@@ -48,33 +48,57 @@ export class EventsComponent implements OnInit, AfterViewInit {
 
     private searchSubject = new Subject<string>();
 
-    constructor(
-        private eventService: EventService,
-        private chapterService: ChapterService,
-        private cdr: ChangeDetectorRef,
-        private fb: FormBuilder
-    ) {
-        this.searchSubject.pipe(
-            debounceTime(500)
-        ).subscribe(() => {
-            this.filterEvents();
-        });
+  constructor(
+    private eventService: EventService,
+    private chapterService: ChapterService,
+    private cdr: ChangeDetectorRef,
+    private fb: FormBuilder
+) {
+    this.searchSubject.pipe(
+        debounceTime(500)
+    ).subscribe(() => {
+        this.filterEvents();
+    });
 
-        this.eventForm = this.fb.group({
-            name: ['', [Validators.required, Validators.minLength(3)]],
-            date: ['', Validators.required],
-            startTime: [''],
-            amount: [0, [Validators.min(1)]],
-            endTime: [''],
-            mode: ['online'],
-            event_or_meeting: ['', Validators.required],
-            paid: [false],
-            location: ['', [Validators.required, Validators.minLength(3)]],
-            chapter_name: ['', Validators.required],
-            mapURL: [''],
-            details: ['']
-        });
+    this.eventForm = this.fb.group({
+        name: ['', [Validators.required, Validators.minLength(3)]],
+        date: ['', Validators.required],
+        startTime: [''],
+        amount: [0],  // यहाँ से Validators.min(1) हटा दिया
+        endTime: [''],
+        mode: ['online'],
+        event_or_meeting: ['', Validators.required],
+        paid: [false],
+        location: ['', [Validators.required, Validators.minLength(3)]],
+        chapter_name: ['', Validators.required],
+        mapURL: [''],
+        details: ['']
+    });
+
+    // Paid field के change को listen करो
+    this.eventForm.get('paid')?.valueChanges.subscribe(isPaid => {
+        this.updateAmountValidation(isPaid);
+    });
+}
+
+
+updateAmountValidation(isPaid: boolean): void {
+    const amountControl = this.eventForm.get('amount');
+    if (amountControl) {
+        if (isPaid) {
+            // Paid event के लिए amount required और min 1
+            amountControl.setValidators([Validators.required, Validators.min(1)]);
+            if (amountControl.value === 0) {
+                amountControl.setValue('');
+            }
+        } else {
+            // Free event के लिए no validators
+            amountControl.clearValidators();
+            amountControl.setValue(0);
+        }
+        amountControl.updateValueAndValidity();
     }
+}
 
     ngOnInit(): void {
         this.fetchEvents();
@@ -177,50 +201,51 @@ export class EventsComponent implements OnInit, AfterViewInit {
         this.filterEvents();
     }
 
-    openAddEventModal(): void {
-        this.isEditMode = false;
-        this.currentEventId = null;
-        this.eventForm.reset({
-            name: '',
-            date: '',
-            startTime: '',
-            endTime: '',
-            amount: 0,
-            mode: 'online',
-            event_or_meeting: '',
-            paid: false,
-            location: '',
-            chapter_name: '',
-            mapURL: '',
-            details: ''
-        });
-        this.thumbnailFile = null;
-        this.thumbnailPreview = null;
-        this.showEventModal();
-    }
+   openAddEventModal(): void {
+    this.isEditMode = false;
+    this.currentEventId = null;
+    this.eventForm.reset({
+        name: '',
+        date: '',
+        startTime: '',
+        endTime: '',
+        amount: 0,
+        mode: 'online',
+        event_or_meeting: '',
+        paid: false,
+        location: '',
+        chapter_name: '',
+        mapURL: '',
+        details: ''
+    });
+    this.thumbnailFile = null;
+    this.thumbnailPreview = null;
+    this.updateAmountValidation(false); // Free event default
+    this.showEventModal();
+}
 
-    openEditEventModal(event: Event): void {
-        this.isEditMode = true;
-        this.currentEventId = event._id;
-        this.eventForm.patchValue({
-            name: event.name,
-            date: new Date(event.date).toISOString().split('T')[0],
-            startTime: event.startTime || '',
-            endTime: event.endTime || '',
-            mode: event.mode || 'online',
-            event_or_meeting: event.event_or_meeting,
-            paid: event.paid,
-            amount: event.amount || 0,
-            location: event.location,
-            chapter_name: event.chapter_name || '',
-            mapURL: event.mapURL || '',
-            details: event.details || ''
-        });
-        this.thumbnailFile = null;
-        this.thumbnailPreview = this.getImagePath(event.thumbnail);
-        this.showEventModal();
-    }
-
+openEditEventModal(event: Event): void {
+    this.isEditMode = true;
+    this.currentEventId = event._id;
+    this.eventForm.patchValue({
+        name: event.name,
+        date: new Date(event.date).toISOString().split('T')[0],
+        startTime: event.startTime || '',
+        endTime: event.endTime || '',
+        mode: event.mode || 'online',
+        event_or_meeting: event.event_or_meeting,
+        paid: event.paid,
+        amount: event.amount || 0,
+        location: event.location,
+        chapter_name: event.chapter_name || '',
+        mapURL: event.mapURL || '',
+        details: event.details || ''
+    });
+    this.thumbnailFile = null;
+    this.thumbnailPreview = this.getImagePath(event.thumbnail);
+    this.updateAmountValidation(event.paid); // Event के paid status ke according validation set karo
+    this.showEventModal();
+}
     showEventModal(): void {
         if (this.eventModal) {
             this.eventModal.show();
@@ -309,30 +334,22 @@ export class EventsComponent implements OnInit, AfterViewInit {
         }
     }
 
-    onAmountInput(event: any): void {
-        // Remove any non-digit characters
-        let value = event.target.value.replace(/\D/g, '');
-        
-        // Limit to 7 digits
-        if (value.length > 7) {
-            value = value.substring(0, 7);
-        }
-        
-        // Update the form value
-        const numValue = value === '' ? 0 : parseInt(value, 10);
-        this.eventForm.patchValue({ amount: numValue });
-        
-        // Update the input field value
-        event.target.value = value;
-        
-        // Clear error if valid
-        if (value.length > 0 && numValue > 0) {
-            const amountControl = this.eventForm.get('amount');
-            if (amountControl) {
-                amountControl.setErrors(null);
-            }
-        }
+onAmountInput(event: any): void {
+    // Remove any non-digit characters
+    let value = event.target.value.replace(/\D/g, '');
+    
+    // Limit to 7 digits
+    if (value.length > 7) {
+        value = value.substring(0, 7);
     }
+    
+    // Update the form value
+    const numValue = value === '' ? 0 : parseInt(value, 10);
+    this.eventForm.patchValue({ amount: numValue });
+    
+    // Update the input field value
+    event.target.value = value;
+}
 
     canSaveEvent(): boolean {
         return this.eventForm.valid;
