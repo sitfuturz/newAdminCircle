@@ -1013,7 +1013,7 @@ export class DashboardService {
       return response;
     } catch (error) {
       console.error('Get Chapters By City Error:', error);
-      swalHelper.showToast('Failed to fetch chapters', 'error');
+      // swalHelper.showToast('Failed to fetch chapters', 'error');
       throw error;
     }
   }
@@ -2221,9 +2221,9 @@ export class EventService {
                   );
       
                   return response.data || response;
-              } catch (error) {
+              } catch (error : any) {
                   console.error('API Error:', error);
-                  swalHelper.showToast('Failed to fetch OTP records', 'error');
+                  swalHelper.showToast(error.error.message, 'warning');
                   throw error;
               }
           }

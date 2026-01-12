@@ -220,7 +220,7 @@ export class RegisterComponent implements OnInit, AfterViewInit {
       this.chaptersLoaded = true;
     } catch (error) {
       console.error('Error fetching chapters by city:', error);
-      swalHelper.showToast('Failed to fetch chapters', 'error');
+      // swalHelper.showToast('Failed to fetch chapters', 'error');
       this.chapters = [];
     } finally {
       this.chaptersLoading = false;

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { SuggestionService } from '../../../services/suggestion.service';
 import { Suggestion, SuggestionAnalytics } from '../../../interface/suggestion.interface';
 import { swalHelper } from '../../../core/constants/swal-helper';
@@ -10,7 +11,7 @@ import { debounceTime, Subject } from 'rxjs';
 @Component({
   selector: 'app-suggestion',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxPaginationModule],
+  imports: [CommonModule, FormsModule, NgxPaginationModule, NgSelectModule],
   providers: [SuggestionService],
   templateUrl: './suggestion.component.html',
   styleUrls: ['./suggestion.component.scss'],

@@ -1,93 +1,21 @@
 <div class="container-fluid">
   <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-    <!-- Header with Analytics -->
-    <div class="card-header bg-gradient-primary py-3">
-      <div class="row align-items-center">
-        <div class="col-md-6">
-          <h4 class="mb-0 fw-bold text-white">
-            <i class="bi bi-flag me-2"></i>Reports Management
-          </h4>
-          <p class="mb-0 text-white-50">Monitor and manage all user reports</p>
-        </div>
-        <div class="col-md-6">
-          <div class="row text-center">
-            <div class="col-3">
-              <div class="analytics-card">
-                <h5 class="text-white mb-1">{{ analytics.total_reports }}</h5>
-                <small class="text-white-50">Total</small>
-              </div>
-            </div>
-            <div class="col-3">
-              <div class="analytics-card">
-                <h5 class="text-warning mb-1">{{ analytics.pending_reports }}</h5>
-                <small class="text-white-50">Pending</small>
-              </div>
-            </div>
-            <div class="col-3">
-              <div class="analytics-card">
-                <h5 class="text-info mb-1">{{ analytics.reviewed_reports }}</h5>
-                <small class="text-white-50">Reviewed</small>
-              </div>
-            </div>
-            <div class="col-3">
-              <div class="analytics-card">
-                <h5 class="text-success mb-1">{{ analytics.resolved_reports }}</h5>
-                <small class="text-white-50">Resolved</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="card-header bg-gradient-primary d-flex justify-content-between align-items-center py-3">
+      <h4 class="mb-0 fw-bold text-white">
+        <i class="bi bi-flag me-2"></i>Reports Management
+      </h4>
     </div>
 
-    <!-- Filters Section -->
     <div class="card-body p-0">
-      <div class="d-flex flex-wrap justify-content-between align-items-center p-3 border-bottom">
-        <div class="d-flex flex-wrap align-items-center gap-2 mb-2 mb-md-0">
-          <div class="me-2" style="min-width: 180px;">
-            <label for="statusSelect" class="form-label mb-1">Status</label>
-            <select
-              id="statusSelect"
-              class="form-control"
-              [(ngModel)]="filters.status"
-              (change)="onFilterChange()">
-              <option *ngFor="let status of statusOptions" [value]="status">
-                {{ status === 'all' ? 'All Status' : (status | titlecase) }}
-              </option>
-            </select>
+      <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+        <div class="d-flex w-100 align-items-center">
+          <div class="flex-grow-1 me-2">
+            <input type="text" class="form-control" placeholder="Search reports..." [(ngModel)]="filters.search"
+              (input)="onFilterChange()" />
           </div>
-          
-          <div class="me-2" style="min-width: 180px;">
-            <label for="typeSelect" class="form-label mb-1">Report Type</label>
-            <select
-              id="typeSelect"
-              class="form-control"
-              [(ngModel)]="filters.reportedItemType"
-              (change)="onFilterChange()">
-              <option *ngFor="let type of typeOptions" [value]="type">
-                {{ type === 'all' ? 'All Types' : (type | titlecase) }}
-              </option>
-            </select>
-          </div>
-          
-          <div class="mt-4">
-            <button class="btn btn-outline-secondary" (click)="resetFilters()">
-              <i class="bi bi-x-circle me-1"></i>Reset
-            </button>
-          </div>
-        </div>
-        
-        <div class="d-flex align-items-center">
-          <div class="ms-2">
-            <select
-              id="limitSelect"
-              class="form-control"
-              [(ngModel)]="filters.limit"
-              (change)="onFilterChange()">
-              <option value="10">10 per page</option>
-              <option value="20">20 per page</option>
-              <option value="50">50 per page</option>
-            </select>
+          <div>
+            <ng-select [items]="[10, 25, 50, 100]" (change)="onFilterChange()" [(ngModel)]="filters.limit"
+              placeholder="Items per page"></ng-select>
           </div>
         </div>
       </div>
@@ -116,16 +44,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let report of reports | paginate: {itemsPerPage: filters.limit, currentPage: filters.page, totalItems: totalDocs}; let i=index" class="border-bottom">
+          <tr
+            *ngFor="let report of reports | paginate: {itemsPerPage: filters.limit, currentPage: filters.page, totalItems: totalDocs}; let i=index"
+            class="border-bottom">
             <td class="py-3">{{ (filters.page - 1) * filters.limit + i + 1 }}</td>
-            
+
             <!-- Reporter Info -->
             <td class="py-3">
               <div *ngIf="report.reporter" class="d-flex align-items-center">
-                <img [src]="getImagePath(report.reporter.profilePic || '')" 
-                     alt="Reporter" 
-                     class="rounded-circle me-2" 
-                     style="width: 40px; height: 40px; object-fit: cover;">
+                <img [src]="getImagePath(report.reporter.profilePic || '')" alt="Reporter" class="rounded-circle me-2"
+                  style="width: 40px; height: 40px; object-fit: cover;">
                 <div>
                   <strong>{{ report.reporter.name }}</strong>
                   <br>
@@ -133,14 +61,12 @@
                 </div>
               </div>
             </td>
-            
+
             <!-- Reported User/Content -->
             <td class="py-3">
               <div *ngIf="report.reportedUser" class="d-flex align-items-center">
-                <img [src]="getImagePath(report.reportedUser.profilePic || '')" 
-                     alt="Reported User" 
-                     class="rounded-circle me-2" 
-                     style="width: 40px; height: 40px; object-fit: cover;">
+                <img [src]="getImagePath(report.reportedUser.profilePic || '')" alt="Reported User"
+                  class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
                 <div>
                   <strong>{{ report.reportedUser.name }}</strong>
                   <br>
@@ -153,7 +79,7 @@
                 </div>
               </div>
             </td>
-            
+
             <!-- Reason -->
             <td class="py-3">
               <div>
@@ -165,7 +91,7 @@
                 </small>
               </div>
             </td>
-            
+
             <!-- Type -->
             <td class="py-3">
               <span class="badge" [ngClass]="getTypeBadgeClass(report.reportedItemType)">
@@ -173,24 +99,22 @@
                 {{ report.reportedItemType | titlecase }}
               </span>
             </td>
-            
+
             <!-- Status -->
             <td class="py-3">
               <span class="badge" [ngClass]="getStatusBadgeClass(report.status)">
                 {{ report.status | titlecase }}
               </span>
             </td>
-            
+
             <!-- Date -->
             <td class="py-3">
               <small class="text-muted">{{ formatDate(report.createdAt) }}</small>
             </td>
-            
+
             <!-- Actions -->
             <td class="py-3">
-              <button 
-                class="btn btn-sm btn-outline-primary"
-                (click)="openReportModal(report)">
+              <button class="btn btn-sm btn-outline-primary" (click)="openReportModal(report)">
                 <i class="bi bi-eye"></i>
                 View Details
               </button>
@@ -201,10 +125,7 @@
 
       <!-- Pagination Controls -->
       <div class="d-flex justify-content-end p-3">
-        <pagination-controls 
-          (pageChange)="onPageChange($event)"
-          previousLabel="Previous"
-          nextLabel="Next"
+        <pagination-controls (pageChange)="onPageChange($event)" previousLabel="Previous" nextLabel="Next"
           [directionLinks]="true">
         </pagination-controls>
       </div>
@@ -222,7 +143,8 @@
 </div>
 
 <!-- Report Details Modal -->
-<div *ngIf="showReportModal && selectedReport" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+<div *ngIf="showReportModal && selectedReport" class="modal fade show d-block" tabindex="-1"
+  style="background: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
@@ -242,10 +164,8 @@
                   <i class="bi bi-person-exclamation me-2"></i>Reported By
                 </h6>
                 <div *ngIf="selectedReport.reporter" class="d-flex align-items-center">
-                  <img [src]="getImagePath(selectedReport.reporter.profilePic || '')" 
-                       alt="Reporter" 
-                       class="rounded-circle me-3" 
-                       style="width: 60px; height: 60px; object-fit: cover;">
+                  <img [src]="getImagePath(selectedReport.reporter.profilePic || '')" alt="Reporter"
+                    class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
                   <div>
                     <strong>{{ selectedReport.reporter.name }}</strong>
                     <br>
@@ -267,10 +187,8 @@
                   <i class="bi bi-person-x me-2"></i>Reported User
                 </h6>
                 <div *ngIf="selectedReport.reportedUser" class="d-flex align-items-center">
-                  <img [src]="getImagePath(selectedReport.reportedUser.profilePic || '')" 
-                       alt="Reported User" 
-                       class="rounded-circle me-3" 
-                       style="width: 60px; height: 60px; object-fit: cover;">
+                  <img [src]="getImagePath(selectedReport.reportedUser.profilePic || '')" alt="Reported User"
+                    class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
                   <div>
                     <strong>{{ selectedReport.reportedUser.name }}</strong>
                     <br>
@@ -310,17 +228,18 @@
             <div class="card border-0 bg-light mb-3">
               <div class="card-body">
                 <h6 class="card-title">Report Information</h6>
-                
+
                 <div class="mb-3">
-                  <strong>Type:</strong> 
+                  <strong>Type:</strong>
                   <span class="badge ms-2" [ngClass]="getTypeBadgeClass(selectedReport.reportedItemType)">
-                    <i [class]="selectedReport.reportedItemType === 'feed' ? 'bi-file-post' : 'bi-person'" class="me-1"></i>
+                    <i [class]="selectedReport.reportedItemType === 'feed' ? 'bi-file-post' : 'bi-person'"
+                      class="me-1"></i>
                     {{ selectedReport.reportedItemType | titlecase }}
                   </span>
                 </div>
 
                 <div class="mb-3">
-                  <strong>Status:</strong> 
+                  <strong>Status:</strong>
                   <span class="badge ms-2" [ngClass]="getStatusBadgeClass(selectedReport.status)">
                     {{ selectedReport.status | titlecase }}
                   </span>
@@ -343,12 +262,11 @@
                     <div class="card-body">
                       <!-- <h6>{{ selectedReport.reportedItem.title || 'Untitled Post' }}</h6> -->
                       <!-- <p>{{ selectedReport.reportedItem.description }}</p> -->
-                      <div *ngIf="selectedReport.reportedItem.images && selectedReport.reportedItem.images.length > 0" class="row g-2">
+                      <div *ngIf="selectedReport.reportedItem.images && selectedReport.reportedItem.images.length > 0"
+                        class="row g-2">
                         <div *ngFor="let image of selectedReport.reportedItem.images.slice(0, 3)" class="col-4">
-                          <img [src]="getImagePath(image)" 
-                               alt="Feed Image" 
-                               class="img-fluid rounded" 
-                               style="max-height: 100px; object-fit: cover;">
+                          <img [src]="getImagePath(image)" alt="Feed Image" class="img-fluid rounded"
+                            style="max-height: 100px; object-fit: cover;">
                         </div>
                       </div>
                     </div>
@@ -384,18 +302,12 @@
                   </div>
                   <div class="col-md-8 mb-3">
                     <label class="form-label">Admin Comment</label>
-                    <textarea 
-                      class="form-control" 
-                      rows="3" 
-                      [(ngModel)]="updateStatusData.adminComment"
+                    <textarea class="form-control" rows="3" [(ngModel)]="updateStatusData.adminComment"
                       placeholder="Enter comment about this report..."></textarea>
                   </div>
                 </div>
                 <div class="d-flex justify-content-end">
-                  <button 
-                    class="btn btn-primary" 
-                    [disabled]="isUpdating"
-                    (click)="updateStatus()">
+                  <button class="btn btn-primary" [disabled]="isUpdating" (click)="updateStatus()">
                     <span *ngIf="isUpdating" class="spinner-border spinner-border-sm me-1"></span>
                     Update Status
                   </button>

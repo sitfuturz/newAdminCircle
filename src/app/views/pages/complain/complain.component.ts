@@ -16,15 +16,17 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { ComplaintService } from '../../../services/complain.service';
 import { Complaint, ComplaintAnalytics } from '../../../interface/complain.interface';
 import { swalHelper } from '../../../core/constants/swal-helper';
 import { debounceTime, Subject } from 'rxjs';
+import { environment } from 'src/env/env.local';
 
 @Component({
   selector: 'app-complain',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxPaginationModule],
+  imports: [CommonModule, FormsModule, NgxPaginationModule, NgSelectModule],
   providers: [ComplaintService],
   templateUrl: './complain.component.html',
   styleUrls: ['./complain.component.scss'],
@@ -46,6 +48,7 @@ export class ComplainComponent implements OnInit {
   loading: boolean = false;
   showComplaintModal: boolean = false;
   selectedComplaint: Complaint | null = null;
+  imageUrl = environment.imageUrl;
   
   updateStatusData = {
     status: '',

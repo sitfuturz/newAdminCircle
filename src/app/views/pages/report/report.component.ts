@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { ReportService } from '../../../services/report.service';
 import { Report } from '../../../interface/report.interface';
 import { swalHelper } from '../../../core/constants/swal-helper';
@@ -11,7 +12,7 @@ import { environment } from 'src/env/env.local';
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxPaginationModule],
+  imports: [CommonModule, FormsModule, NgxPaginationModule, NgSelectModule],
   providers: [ReportService],
   templateUrl: './report.component.html',
   styleUrls: ['./report.component.scss'],
@@ -48,7 +49,8 @@ export class ReportComponent implements OnInit {
     page: 1,
     limit: 20,
     status: 'all' as string,
-    reportedItemType: 'all' as string
+    reportedItemType: 'all' as string,
+    search: '' as string
   };
 
   // Filter options
@@ -118,7 +120,8 @@ export class ReportComponent implements OnInit {
       page: 1,
       limit: 20,
       status: 'all',
-      reportedItemType: 'all'
+      reportedItemType: 'all',
+      search: ''
     };
     this.filterSubject.next();
   }
