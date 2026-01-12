@@ -131,7 +131,7 @@ export class VisitorsComponent implements OnInit {
       this.cdr.detectChanges();
     } catch (error) {
       console.error('Error fetching visitors:', error);
-      swalHelper.showToast('Failed to fetch visitors', 'error');
+      // swalHelper.showToast('Failed to fetch visitors', 'error');
     } finally {
       this.loading = false;
       this.cdr.detectChanges();

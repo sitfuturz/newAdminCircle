@@ -2749,7 +2749,7 @@ export class VisitorService {
       return response.data || response;
     } catch (error) {
       console.error('API Error:', error);
-      swalHelper.showToast('Failed to fetch visitors', 'error');
+      // swalHelper.showToast('Failed to fetch visitors', 'error');
       throw error;
     }
   }

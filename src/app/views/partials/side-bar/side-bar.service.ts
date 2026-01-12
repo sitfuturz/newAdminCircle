@@ -49,11 +49,11 @@ export class SideBarService {
             //   icon: 'file-text',
             // },
             
-            {
-              title: 'Import Users',
-              link: 'importUsers',
-              icon: 'file-import',
-            },
+            // {
+            //   title: 'Import Users',
+            //   link: 'importUsers',
+            //   icon: 'file-import',
+            // },
           ]
         },
         {

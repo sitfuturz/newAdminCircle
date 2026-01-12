@@ -1,3 +1,7 @@
+.table-responsive{
+  height: 200px;
+}
+
 /* Custom CSS for Banner component */
 .bg-gradient-primary {
     background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);

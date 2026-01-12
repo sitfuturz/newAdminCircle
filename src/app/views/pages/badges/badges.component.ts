@@ -314,7 +314,7 @@ export class BadgesComponent implements OnInit, AfterViewInit {
       }
     } catch (error: any) {
       console.error('Error saving badge:', error);
-      swalHelper.showToast(error?.response?.data?.message || error?.message || 'Failed to save badge', 'error');
+      swalHelper.showToast(error?.error?.message || error?.message || 'Failed to save badge', 'error');
     } finally {
       this.loading = false;
     }
