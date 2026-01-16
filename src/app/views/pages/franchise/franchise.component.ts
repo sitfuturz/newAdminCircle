@@ -315,26 +315,25 @@ export class FranchiseComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async deleteFranchise(franchise: Franchise): Promise<void> {
-    const confirmed = await swalHelper.takeConfirmation(
-      'Delete Franchise',
-      `Are you sure you want to delete "${franchise.name}"? This action cannot be undone.`,
-      'Yes, Delete'
-    );
-
-    if (confirmed.isConfirmed) {
-      this.loading = true;
-      try {
-        await this.authService.deleteFranchise(franchise._id);
-        swalHelper.showToast('Franchise deleted successfully', 'success');
-        this.fetchFranchises();
-      } catch (error) {
-        console.error('Error deleting franchise:', error);
-      } finally {
-        this.loading = false;
-      }
+async deleteFranchise(franchise: Franchise): Promise<void> {
+  const confirmed = await swalHelper.takeConfirmation(
+    'Delete Franchise',
+    `Are you sure you want to delete "${franchise.name}"? This action cannot be undone.`,
+    'Yes, Delete'
+  );
+  if (confirmed.isConfirmed) {
+    this.loading = true;
+    try {
+      await this.authService.deleteFranchise(franchise._id);
+      swalHelper.showToast('Franchise deleted successfully', 'success');
+      this.fetchFranchises();
+    } catch (error) {
+      console.error('Error deleting franchise:', error);
+    } finally {
+      this.loading = false;
     }
   }
+}
 
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString();
