@@ -471,7 +471,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
       };
 
       const result = await firstValueFrom(
-        this.http.post<any>('https://thecircle.itfuturz.in/admin/send-custom-email', payload)
+        this.http.post<any>(`${environment.baseURL}/admin/send-custom-email`, payload)
       );
 
       if (result.success) {
@@ -534,22 +534,24 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
   openWhatsAppModal(user: any): void {
     if (!this.isAdmin && !this.isExecutiveDirector) return; // Non-admin and non-executive director cannot access
-    this.selectedUser = user;
-    this.whatsappForm = {
-      userId: user._id,
-      message: '',
-      includeLink: false,
-      link: ''
-    };
-    this.whatsappError = {
-      message: ''
-    };
+    swalHelper.showToast('Please contact info@gmail.com for buying WhatsApp software then use.', 'info');
 
-    if (this.whatsappModal) {
-      this.whatsappModal.show();
-    } else {
-      $('#whatsappModal').modal('show');
-    }
+    // this.selectedUser = user;
+    // this.whatsappForm = {
+    //   userId: user._id,
+    //   message: '',
+    //   includeLink: false,
+    //   link: ''
+    // };
+    // this.whatsappError = {
+    //   message: ''
+    // };
+
+    // if (this.whatsappModal) {
+    //   this.whatsappModal.show();
+    // } else {
+    //   $('#whatsappModal').modal('show');
+    // }
   }
 
   closeWhatsAppModal(): void {
@@ -929,7 +931,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
           pdf.text(`Search query: "${currentSearch}"`, margin, margin + 24);
         }
         if (currentChapter) {
-          pdf.text(`Chapter: "${currentChapter}"`, margin, margin + 30);
+          pdf.text(`Chapter: "${currentChapter}"`, margin, margin + 24);
         }
 
         const columns = [

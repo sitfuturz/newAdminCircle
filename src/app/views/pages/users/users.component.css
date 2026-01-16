@@ -178,3 +178,44 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+/* ng-select dropdown fix - Body me append hone ke baad */
+::ng-deep .ng-dropdown-panel {
+  border-radius: 0.375rem !important;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #dee2e6 !important;
+  z-index: 9999 !important;
+  max-height: 250px !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .scroll-host {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-option {
+  padding: 10px 15px !important;
+  cursor: pointer !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  line-height: 1.5 !important;
+  font-size: 14px !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-option:hover {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-option.ng-option-selected {
+  background-color: #0d6efd !important;
+  color: white !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-option.ng-option-marked {
+  background-color: rgba(13, 110, 253, 0.2) !important;
+}

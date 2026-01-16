@@ -693,12 +693,18 @@
             <div *ngIf="editError.date_of_birth" class="text-danger small mt-1">{{editError.date_of_birth}}</div>
           </div> -->
           <div class="mb-3">
-            <label for="editRole" class="form-label">Role <span class="text-danger">*</span></label>
-            <ng-select id="editRole"
-              [items]="[ 'advisoryBoard', 'supportDirector', 'SupportAmbassador', 'LT', 'Member']"
-              [(ngModel)]="editForm.role" name="role" placeholder="Select role" required>
-            </ng-select>
-            <div *ngIf="editError.role" class="text-danger small mt-1">{{editError.role}}</div>    </div>
+  <label for="editRole" class="form-label">Role <span class="text-danger">*</span></label>
+  <ng-select 
+    id="editRole"
+    [items]="['advisoryBoard', 'supportDirector', 'SupportAmbassador', 'LT', 'Member']"
+    [(ngModel)]="editForm.role" 
+    name="role" 
+    placeholder="Select role"
+    appendTo="body"
+    required>
+  </ng-select>
+  <div *ngIf="editError.role" class="text-danger small mt-1">{{editError.role}}</div>
+</div>
         </form>
       </div>
       <div class="modal-footer">
@@ -798,11 +804,12 @@
               placeholder="Enter email message" required></textarea>
             <div *ngIf="emailError.message" class="text-danger small mt-1">{{emailError.message}}</div>
           </div>
-          <div class="mb-3">
+          <!-- !! curently not in use -->
+          <!-- <div class="mb-3">
             <label for="emailAttachment" class="form-label">Attachment (Optional)</label>
             <input type="file" class="form-control" id="emailAttachment" (change)="onFileSelect($event)"
               accept=".pdf,.doc,.docx,.jpg,.png">
-          </div>
+          </div> -->
         </form>
       </div>
       <div class="modal-footer">
