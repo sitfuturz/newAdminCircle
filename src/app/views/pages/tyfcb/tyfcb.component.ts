@@ -31,36 +31,43 @@ export class TyfcbComponent implements OnInit {
     prevPage: null,
     nextPage: null
   };
-  
+
   chapters: ChapterFull[] = [];
   loading: boolean = false;
   chaptersLoading: boolean = false;
   exporting: boolean = false;
-  isAdmin: boolean = false; // Track if user is admin
-  isExecutiveDirector: boolean = false; // Track if user is executive director
-  userChapter: string = ''; // Store user's chapter
-  
+  isAdmin: boolean = false;
+  isExecutiveDirector: boolean = false;
+  userChapter: string = '';
+
   Math = Math;
-  
+
+  referralTypes = [
+    { value: null, label: 'All' },
+    { value: 'inside', label: 'Inside' },
+    { value: 'outside', label: 'Outside' }
+  ];
+
   filters = {
     page: 1,
     limit: 10,
     chapter_name: null as string | null,
     startDate: this.formatDateForInput(new Date(new Date().setDate(new Date().getDate() - 30))),
-    endDate: this.formatDateForInput(new Date())
+    endDate: this.formatDateForInput(new Date()),
+    referral_type: null as string | null
   };
-  
+
   paginationConfig = {
     id: 'tyfcb-pagination'
   };
-  
+
   private filterSubject = new Subject<void>();
-  
+
   constructor(
     private tyfcbService: TyfcbService,
     private chapterService: ChapterService,
     private exportService: ExportService,
-    private customhelperService: CustomhelperService, // Inject CustomhelperService
+    private customhelperService: CustomhelperService,
     private cdr: ChangeDetectorRef
   ) {
     this.filterSubject.pipe(debounceTime(300)).subscribe(() => {
@@ -69,13 +76,11 @@ export class TyfcbComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Fetch user data to set default chapter and isAdmin
     const { chapter, isAdmin, role } = this.customhelperService.getChapterAndIsAdmin();
     this.userChapter = chapter;
     this.isAdmin = isAdmin;
     this.isExecutiveDirector = role === 'executiveDirector';
 
-    // Set default chapter in filters if user has a chapter
     if (this.userChapter) {
       this.filters.chapter_name = this.userChapter;
     }
@@ -87,19 +92,33 @@ export class TyfcbComponent implements OnInit {
   async fetchTyfcbs(): Promise<void> {
     this.loading = true;
     try {
-      const requestParams = {
+      const requestParams: any = {
         page: this.filters.page,
         limit: this.filters.limit,
-        chapter_name: this.filters.chapter_name || undefined,
-        startDate: this.filters.startDate || undefined,
-        endDate: this.filters.endDate || undefined
       };
+
+      if (this.filters.chapter_name)    requestParams.chapter_name   = this.filters.chapter_name;
+      if (this.filters.startDate)       requestParams.startDate      = this.filters.startDate;
+      if (this.filters.endDate)         requestParams.endDate        = this.filters.endDate;
+      if (this.filters.referral_type)   requestParams.referral_type  = this.filters.referral_type;
+
       const response = await this.tyfcbService.getAllTyfcbs(requestParams);
       this.tyfcbs = response;
       this.cdr.detectChanges();
     } catch (error) {
       console.error('Error fetching TYFCB records:', error);
       swalHelper.showToast('Failed to fetch TYFCB records', 'error');
+      this.tyfcbs = {
+        docs: [],
+        totalDocs: 0,
+        limit: this.filters.limit,
+        page: this.filters.page,
+        totalPages: 0,
+        hasPrevPage: false,
+        hasNextPage: false,
+        prevPage: null,
+        nextPage: null
+      };
     } finally {
       this.loading = false;
     }
@@ -114,7 +133,6 @@ export class TyfcbComponent implements OnInit {
         search: ''
       });
       this.chapters = response.docs || [];
-      // If not admin and not executive director, filter chapters to only show user's chapter
       if (!this.isAdmin && !this.isExecutiveDirector && this.userChapter) {
         this.chapters = this.chapters.filter(chapter => chapter.name === this.userChapter);
       }
@@ -140,9 +158,10 @@ export class TyfcbComponent implements OnInit {
     this.filters = {
       page: 1,
       limit: 10,
-      chapter_name: this.userChapter || null, // Reset to user's chapter
+      chapter_name: this.userChapter || null,
       startDate: this.formatDateForInput(new Date(new Date().setDate(new Date().getDate() - 30))),
-      endDate: this.formatDateForInput(new Date())
+      endDate: this.formatDateForInput(new Date()),
+      referral_type: null
     };
     this.fetchTyfcbs();
   }
@@ -182,28 +201,42 @@ export class TyfcbComponent implements OnInit {
   async exportToExcel(): Promise<void> {
     try {
       this.exporting = true;
-      const exportParams = {
-        chapter_name: this.filters.chapter_name || undefined,
-        startDate: this.filters.startDate || undefined,
-        endDate: this.filters.endDate || undefined,
-        limit: 10000,
-        page: 1
-      };
-      const allData = await this.tyfcbService.getAllTyfcbs(exportParams);
-      const exportData = allData.docs.map((tyfcb, index) => {
-        return {
-          'Sr No': index + 1,
-          'TYFCB From': tyfcb.giverId?.name || 'Unknown',
-          'From Chapter': tyfcb.giverId?.chapter_name || 'N/A',
-          'TYFCB To': tyfcb.receiverId?.name || 'Unknown',
-          'To Chapter': tyfcb.receiverId?.chapter_name || 'N/A',
-          'Amount': this.formatCurrency(tyfcb.amount, tyfcb.currency),
-          'Business Type': tyfcb.business_type || 'N/A',
-          'Referral Type': tyfcb.referral_type || 'N/A',
-          'Comments': tyfcb.comments || 'No comments',
-          'Date': this.formatDate(tyfcb.createdAt)
-        };
-      });
+      let allData: Tyfcb[] = [];
+      let page = 1;
+      const limit = 1000;
+      let response: TyfcbResponse;
+
+      const exportParams: any = { page, limit };
+      if (this.filters.chapter_name)    exportParams.chapter_name   = this.filters.chapter_name;
+      if (this.filters.startDate)       exportParams.startDate      = this.filters.startDate;
+      if (this.filters.endDate)         exportParams.endDate        = this.filters.endDate;
+      if (this.filters.referral_type)   exportParams.referral_type  = this.filters.referral_type;
+
+      do {
+        response = await this.tyfcbService.getAllTyfcbs(exportParams);
+        allData = [...allData, ...response.docs];
+        page++;
+        exportParams.page = page;
+      } while (response.hasNextPage);
+
+      if (allData.length === 0) {
+        swalHelper.showToast('No records found for export', 'warning');
+        return;
+      }
+
+      const exportData = allData.map((tyfcb, index) => ({
+        'Sr No': index + 1,
+        'Business From': tyfcb.giverId?.name || 'Unknown',
+        'From Chapter': tyfcb.giverId?.chapter_name || 'N/A',
+        'Business To': tyfcb.receiverId?.name || 'Unknown',
+        'To Chapter': tyfcb.receiverId?.chapter_name || 'N/A',
+        'Amount': this.formatCurrency(tyfcb.amount, tyfcb.currency),
+        'Business Type': tyfcb.business_type || 'N/A',
+        'Referral Type': tyfcb.referral_type || 'N/A',
+        'Comments': tyfcb.comments || 'No comments',
+        'Date': this.formatDate(tyfcb.createdAt)
+      }));
+
       const fileName = `TYFCB_Report_${this.formatDateForFileName(new Date())}`;
       await this.exportService.exportToExcel(exportData, fileName);
       swalHelper.showToast('Excel file downloaded successfully', 'success');
@@ -218,15 +251,29 @@ export class TyfcbComponent implements OnInit {
   async exportToPDF(): Promise<void> {
     try {
       this.exporting = true;
-      const exportParams = {
-        chapter_name: this.filters.chapter_name || undefined,
-        startDate: this.filters.startDate || undefined,
-        endDate: this.filters.endDate || undefined,
-        limit: 10000,
-        page: 1
-      };
-      const allData = await this.tyfcbService.getAllTyfcbs(exportParams);
-      const fileName = `TYFCB_Report_${this.formatDateForFileName(new Date())}`;
+      let allData: Tyfcb[] = [];
+      let page = 1;
+      const limit = 1000;
+      let response: TyfcbResponse;
+
+      const exportParams: any = { page, limit };
+      if (this.filters.chapter_name)    exportParams.chapter_name   = this.filters.chapter_name;
+      if (this.filters.startDate)       exportParams.startDate      = this.filters.startDate;
+      if (this.filters.endDate)         exportParams.endDate        = this.filters.endDate;
+      if (this.filters.referral_type)   exportParams.referral_type  = this.filters.referral_type;
+
+      do {
+        response = await this.tyfcbService.getAllTyfcbs(exportParams);
+        allData = [...allData, ...response.docs];
+        page++;
+        exportParams.page = page;
+      } while (response.hasNextPage);
+
+      if (allData.length === 0) {
+        swalHelper.showToast('No records found for export', 'warning');
+        return;
+      }
+
       const columns = [
         { header: 'Sr No', dataKey: 'srNo' },
         { header: 'From', dataKey: 'from' },
@@ -236,25 +283,30 @@ export class TyfcbComponent implements OnInit {
         { header: 'Referral Type', dataKey: 'referralType' },
         { header: 'Date', dataKey: 'date' }
       ];
-      const data = allData.docs.map((tyfcb, index) => {
-        return {
-          srNo: index + 1,
-          from: `${tyfcb.giverId?.name || 'Unknown'}\n(${tyfcb.giverId?.chapter_name || 'N/A'})`,
-          to: `${tyfcb.receiverId?.name || 'Unknown'}\n(${tyfcb.receiverId?.chapter_name || 'N/A'})`,
-          amount: this.formatCurrency(tyfcb.amount, tyfcb.currency),
-          businessType: tyfcb.business_type || 'N/A',
-          referralType: tyfcb.referral_type || 'N/A',
-          date: this.formatDate(tyfcb.createdAt)
-        };
-      });
+
+      const data = allData.map((tyfcb, index) => ({
+        srNo: index + 1,
+        from: `${tyfcb.giverId?.name || 'Unknown'}\n(${tyfcb.giverId?.chapter_name || 'N/A'})`,
+        to: `${tyfcb.receiverId?.name || 'Unknown'}\n(${tyfcb.receiverId?.chapter_name || 'N/A'})`,
+        amount: this.formatCurrency(tyfcb.amount, tyfcb.currency),
+        businessType: tyfcb.business_type || 'N/A',
+        referralType: tyfcb.referral_type || 'N/A',
+        date: this.formatDate(tyfcb.createdAt)
+      }));
+
       const title = 'Business Report';
       let subtitle = 'All Business Records';
       if (this.filters.chapter_name) {
         subtitle = `Chapter: ${this.filters.chapter_name}`;
       }
+      if (this.filters.referral_type) {
+        subtitle += ` | Referral Type: ${this.filters.referral_type === 'inside' ? 'Inside' : 'Outside'}`;
+      }
       if (this.filters.startDate && this.filters.endDate) {
         subtitle += ` | Period: ${this.formatDate(this.filters.startDate)} to ${this.formatDate(this.filters.endDate)}`;
       }
+
+      const fileName = `TYFCB_Report_${this.formatDateForFileName(new Date())}`;
       await this.exportService.exportToPDF(columns, data, title, subtitle, fileName);
       swalHelper.showToast('PDF file downloaded successfully', 'success');
     } catch (error) {
