@@ -1,3 +1,4 @@
+// referralReport.component.ts
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -36,18 +37,28 @@ export class ReferralsComponent implements OnInit {
   loading: boolean = false;
   chaptersLoading: boolean = false;
   exporting: boolean = false;
-  isAdmin: boolean = false; // New property to track if user is admin
-  isExecutiveDirector: boolean = false; // Track if user is executive director
-  userChapter: string = ''; // New property to store user's chapter
+  isAdmin: boolean = false;
+  isExecutiveDirector: boolean = false;
+  userChapter: string = '';
 
   Math = Math;
+
+  // ────────────────────────────────────────────────
+  // NEW: Options for Recommendation Type filter
+  // ────────────────────────────────────────────────
+  referralTypes = [
+    { value: null, label: 'All' },
+    { value: 'inside', label: 'Inside' },
+    { value: 'outside', label: 'Outside' }
+  ];
 
   filters = {
     page: 1,
     limit: 10,
     chapterName: null as string | null,
     startDate: this.formatDateForInput(new Date(new Date().setDate(new Date().getDate() - 30))),
-    endDate: this.formatDateForInput(new Date())
+    endDate: this.formatDateForInput(new Date()),
+    referralType: null as string | null          // ← NEW FIELD
   };
 
   paginationConfig = {
@@ -60,7 +71,7 @@ export class ReferralsComponent implements OnInit {
     private referralService: ReferralService,
     private chapterService: ChapterService,
     private exportService: ExportService,
-    private customhelperService: CustomhelperService, // Inject CustomhelperService
+    private customhelperService: CustomhelperService,
     private cdr: ChangeDetectorRef
   ) {
     this.filterSubject.pipe(debounceTime(300)).subscribe(() => {
@@ -69,13 +80,11 @@ export class ReferralsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Fetch user data to set default chapter and isAdmin
     const { chapter, isAdmin, role } = this.customhelperService.getChapterAndIsAdmin();
     this.userChapter = chapter;
     this.isAdmin = isAdmin;
     this.isExecutiveDirector = role === 'executiveDirector';
 
-    // Set default chapter in filters if user has a chapter
     if (this.userChapter) {
       this.filters.chapterName = this.userChapter;
     }
@@ -91,9 +100,11 @@ export class ReferralsComponent implements OnInit {
         page: this.filters.page,
         limit: this.filters.limit
       };
-      if (this.filters.chapterName) requestParams.chapterName = this.filters.chapterName;
-      if (this.filters.startDate) requestParams.startDate = this.filters.startDate;
-      if (this.filters.endDate) requestParams.endDate = this.filters.endDate;
+
+      if (this.filters.chapterName)    requestParams.chapterName   = this.filters.chapterName;
+      if (this.filters.startDate)      requestParams.startDate     = this.filters.startDate;
+      if (this.filters.endDate)        requestParams.endDate       = this.filters.endDate;
+      if (this.filters.referralType)   requestParams.referralType  = this.filters.referralType;  // ← NEW
 
       const response = await this.referralService.getAllReferrals(requestParams);
       this.referrals = response;
@@ -128,7 +139,6 @@ export class ReferralsComponent implements OnInit {
         search: ''
       });
       this.chapters = response.docs || [];
-      // If not admin and not executive director, filter chapters to only show user's chapter
       if (!this.isAdmin && !this.isExecutiveDirector && this.userChapter) {
         this.chapters = this.chapters.filter(chapter => chapter.name === this.userChapter);
       }
@@ -154,9 +164,10 @@ export class ReferralsComponent implements OnInit {
     this.filters = {
       page: 1,
       limit: 10,
-      chapterName: this.userChapter || null, // Reset to user's chapter
+      chapterName: this.userChapter || null,
       startDate: this.formatDateForInput(new Date(new Date().setDate(new Date().getDate() - 30))),
-      endDate: this.formatDateForInput(new Date())
+      endDate: this.formatDateForInput(new Date()),
+      referralType: null                             // ← reset to All
     };
     this.fetchReferrals();
   }
@@ -178,6 +189,10 @@ export class ReferralsComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
+  // ────────────────────────────────────────────────
+  // Export functions remain almost same – just pass referralType too
+  // ────────────────────────────────────────────────
+
   async exportToExcel(): Promise<void> {
     try {
       this.exporting = true;
@@ -187,9 +202,10 @@ export class ReferralsComponent implements OnInit {
       let response: ReferralResponse;
 
       const exportParams: any = { page, limit };
-      if (this.filters.chapterName) exportParams.chapterName = this.filters.chapterName;
-      if (this.filters.startDate) exportParams.startDate = this.filters.startDate;
-      if (this.filters.endDate) exportParams.endDate = this.filters.endDate;
+      if (this.filters.chapterName)   exportParams.chapterName   = this.filters.chapterName;
+      if (this.filters.startDate)     exportParams.startDate     = this.filters.startDate;
+      if (this.filters.endDate)       exportParams.endDate       = this.filters.endDate;
+      if (this.filters.referralType)  exportParams.referralType  = this.filters.referralType;   // ← NEW
 
       do {
         response = await this.referralService.getAllReferrals(exportParams);
@@ -203,31 +219,25 @@ export class ReferralsComponent implements OnInit {
         return;
       }
 
-      const exportData = allData.map((referral, index) => {
-        return {
-          'Sr No': index + 1,
-          'Recommendation From': String(referral.giver_id?.name || 'Unknown').replace(/[\r\n\t]/g, ' '),
-          'From Chapter': String(referral.giver_id?.chapter_name || 'N/A').replace(/[\r\n\t]/g, ' '),
-          'Recommendation To': String(referral.receiver_id?.name || 'External Referral').replace(/[\r\n\t]/g, ' '),
-          'To Chapter': String(referral.receiver_id?.chapter_name || 'N/A').replace(/[\r\n\t]/g, ' '),
-          'Recommendation Type': referral.referral_type === 'inside' ? 'Inside' : 'Outside',
-          'Recommendation': String(referral.referral || '').replace(/[\r\n\t]/g, ' '),
-          'Mobile No': String(referral.mobile_number || '').replace(/[\r\n\t]/g, ' '),
-          'Comments': String(referral.comments || 'No comments').replace(/[\r\n\t]/g, ' '),
-          'Rating': Number(referral.rating || 0),
-          'Date': this.formatDate(referral.createdAt)
-        };
-      });
+      const exportData = allData.map((referral, index) => ({
+        'Sr No': index + 1,
+        'Recommendation From': String(referral.giver_id?.name || 'Unknown').replace(/[\r\n\t]/g, ' '),
+        'From Chapter': String(referral.giver_id?.chapter_name || 'N/A').replace(/[\r\n\t]/g, ' '),
+        'Recommendation To': String(referral.receiver_id?.name || 'External Referral').replace(/[\r\n\t]/g, ' '),
+        'To Chapter': String(referral.receiver_id?.chapter_name || 'N/A').replace(/[\r\n\t]/g, ' '),
+        'Recommendation Type': referral.referral_type === 'inside' ? 'Inside' : 'Outside',
+        'Recommendation': String(referral.referral || '').replace(/[\r\n\t]/g, ' '),
+        'Mobile No': String(referral.mobile_number || '').replace(/[\r\n\t]/g, ' '),
+        'Comments': String(referral.comments || 'No comments').replace(/[\r\n\t]/g, ' '),
+        'Rating': Number(referral.rating || 0),
+        'Date': this.formatDate(referral.createdAt)
+      }));
 
       const fileName = `Recommendation_Report_${this.formatDateForFileName(new Date())}`;
       await this.exportService.exportToExcel(exportData, fileName);
       swalHelper.showToast('Excel file downloaded successfully', 'success');
     } catch (error: any) {
-      console.error('Error exporting to Excel:', {
-        message: error.message,
-        stack: error.stack,
-        errorResponse: error.response || 'No response data'
-      });
+      console.error('Error exporting to Excel:', error);
       swalHelper.showToast(`Failed to export to Excel: ${error.message || 'Unknown error'}`, 'error');
     } finally {
       this.exporting = false;
@@ -243,9 +253,10 @@ export class ReferralsComponent implements OnInit {
       let response: ReferralResponse;
 
       const exportParams: any = { page, limit };
-      if (this.filters.chapterName) exportParams.chapterName = this.filters.chapterName;
-      if (this.filters.startDate) exportParams.startDate = this.filters.startDate;
-      if (this.filters.endDate) exportParams.endDate = this.filters.endDate;
+      if (this.filters.chapterName)   exportParams.chapterName   = this.filters.chapterName;
+      if (this.filters.startDate)     exportParams.startDate     = this.filters.startDate;
+      if (this.filters.endDate)       exportParams.endDate       = this.filters.endDate;
+      if (this.filters.referralType)  exportParams.referralType  = this.filters.referralType;   // ← NEW
 
       do {
         response = await this.referralService.getAllReferrals(exportParams);
@@ -270,24 +281,25 @@ export class ReferralsComponent implements OnInit {
         { header: 'Date', dataKey: 'date' }
       ];
 
-      const data = allData.map((referral, index) => {
-        return {
-          srNo: index + 1,
-          fromName: `${referral.giver_id?.name || 'Unknown'}\n(${referral.giver_id?.chapter_name || 'N/A'})`,
-          toName: referral.receiver_id
-            ? `${referral.receiver_id?.name || 'Unknown'}\n(${referral.receiver_id?.chapter_name || 'N/A'})`
-            : 'External Recommendation',
-          type: referral.referral_type === 'inside' ? 'Inside' : 'Outside',
-          referral: referral.referral,
-          mobile: referral.mobile_number,
-          date: this.formatDate(referral.createdAt)
-        };
-      });
+      const data = allData.map((referral, index) => ({
+        srNo: index + 1,
+        fromName: `${referral.giver_id?.name || 'Unknown'}\n(${referral.giver_id?.chapter_name || 'N/A'})`,
+        toName: referral.receiver_id
+          ? `${referral.receiver_id?.name || 'Unknown'}\n(${referral.receiver_id?.chapter_name || 'N/A'})`
+          : 'External Recommendation',
+        type: referral.referral_type === 'inside' ? 'Inside' : 'Outside',
+        referral: referral.referral,
+        mobile: referral.mobile_number,
+        date: this.formatDate(referral.createdAt)
+      }));
 
       const title = 'Recommendation Report';
       let subtitle = 'All Recommendations';
       if (this.filters.chapterName) {
         subtitle = `Chapter: ${this.filters.chapterName}`;
+      }
+      if (this.filters.referralType) {
+        subtitle += ` | Type: ${this.filters.referralType === 'inside' ? 'Inside' : 'Outside'}`;
       }
       if (this.filters.startDate && this.filters.endDate) {
         subtitle += ` | Period: ${this.formatDate(this.filters.startDate)} to ${this.formatDate(this.filters.endDate)}`;
@@ -296,11 +308,7 @@ export class ReferralsComponent implements OnInit {
       await this.exportService.exportToPDF(columns, data, title, subtitle, fileName);
       swalHelper.showToast('PDF file downloaded successfully', 'success');
     } catch (error: any) {
-      console.error('Error exporting to PDF:', {
-        message: error.message,
-        stack: error.stack,
-        response: error.response || 'No response data'
-      });
+      console.error('Error exporting to PDF:', error);
       swalHelper.showToast(`Failed to export to PDF: ${error.message || 'Unknown error'}`, 'error');
     } finally {
       this.exporting = false;

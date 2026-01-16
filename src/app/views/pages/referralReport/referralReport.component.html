@@ -49,6 +49,18 @@
               (change)="onFilterChange()"
               placeholder="End Date">
           </div>
+          <div class="me-2" style="min-width: 160px;">
+  <label for="typeSelect" class="form-label mb-1">Type</label>
+  <ng-select 
+    id="typeSelect"
+    [items]="referralTypes"
+    bindLabel="label"
+    bindValue="value"
+    placeholder="All"
+    [(ngModel)]="filters.referralType"
+    (change)="onFilterChange()">
+  </ng-select>
+</div>
           <div class="mt-4">
             <button class="btn btn-outline-secondary" (click)="resetFilters()">
               <i class="bi bi-x-circle me-1"></i>Reset
